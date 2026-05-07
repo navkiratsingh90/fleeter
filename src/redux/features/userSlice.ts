@@ -16,10 +16,12 @@ export const counterSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    
+     getUserData : (state,action) => {
+      state.user = action.payload
+    }
   },
 })
 
-export const {  } = counterSlice.actions
+export const { getUserData } = counterSlice.actions
 
 export default counterSlice.reducer
