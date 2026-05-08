@@ -16,7 +16,6 @@ export default InitUser
 // import { auth } from "./auth";
 
 // const PUBLIC_ROUTES = ["/"];
-// const PUBLIC_APIS = ["/api/auth"];
 
 // const PARTNER_ONBOARDING_ROUTES = [
 //   "/partner/onboarding",
@@ -29,8 +28,8 @@ export default InitUser
 //   // ignore static files
 //   if (
 //     pathname.startsWith("/_next") ||
-//     pathname.startsWith("/favicon.ico") ||
-//     pathname.includes(".")
+//     pathname.startsWith("/favicon.ico") || 
+		// /\.(png|jpg|jpeg|gif|svg|webp|ico)$/i.test(pathname)
 //   ) {
 //     return NextResponse.next();
 //   }
@@ -45,7 +44,7 @@ export default InitUser
 //   }
 
 //   // public routes
-//   if (PUBLIC_ROUTES.includes(pathname)) {
+//   if (pathname.startsWith("/api/auth")) {
 //     return NextResponse.next();
 //   }
 

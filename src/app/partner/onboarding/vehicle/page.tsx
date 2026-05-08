@@ -1,227 +1,190 @@
+// app/vehicle-details/page.tsx
 "use client";
 
 import { useState } from "react";
+import { ArrowLeft, Bike, Car, Truck, Package, Train } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ArrowLeft, Bike, Car, Truck, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/* ─── Vehicle types ──────────────────────────────────── */
-const VEHICLE_TYPES = [
-  {
-    id: "bike",
-    label: "Bike",
-    sub: "2 wheeler",
-    icon: (
-      <svg viewBox="0 0 28 28" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="7" cy="19" r="5"/>
-        <circle cx="21" cy="19" r="5"/>
-        <circle cx="7"  cy="19" r="1.5" fill="currentColor" stroke="none"/>
-        <circle cx="21" cy="19" r="1.5" fill="currentColor" stroke="none"/>
-        <path d="M7 14 L12 14 L16 8 L20 8 L21 14"/>
-        <path d="M12 14 L14 10 L17 10"/>
-        <rect x="19" y="5" width="5" height="4" rx="1"/>
-      </svg>
-    ),
-  },
-  {
-    id: "auto",
-    label: "Auto",
-    sub: "3 wheeler ride",
-    icon: (
-      <svg viewBox="0 0 28 28" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6 18 L6 10 L18 10 L22 18"/>
-        <rect x="6" y="18" width="16" height="5" rx="2"/>
-        <rect x="6" y="10" width="12" height="8" rx="1"/>
-        <path d="M18 10 L24 10 L24 18"/>
-        <circle cx="10" cy="23" r="2.5"/>
-        <circle cx="10" cy="23" r="1" fill="currentColor" stroke="none"/>
-        <circle cx="20" cy="23" r="2.5"/>
-        <circle cx="20" cy="23" r="1" fill="currentColor" stroke="none"/>
-      </svg>
-    ),
-  },
-  {
-    id: "car",
-    label: "Car",
-    sub: "4 wheeler ride",
-    icon: (
-      <svg viewBox="0 0 28 28" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="13" width="22" height="9" rx="2"/>
-        <path d="M5 13 L9 7 L19 7 L23 13"/>
-        <rect x="10" y="9" width="8" height="4" rx="1"/>
-        <circle cx="8"  cy="22" r="3"/>
-        <circle cx="8"  cy="22" r="1.2" fill="currentColor" stroke="none"/>
-        <circle cx="20" cy="22" r="3"/>
-        <circle cx="20" cy="22" r="1.2" fill="currentColor" stroke="none"/>
-        <rect x="23" y="16" width="2" height="4" rx="1"/>
-      </svg>
-    ),
-  },
-  {
-    id: "loading",
-    label: "Loading",
-    sub: "Small goods",
-    icon: (
-      <svg viewBox="0 0 28 28" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="10" width="14" height="10" rx="2"/>
-        <path d="M17 13 L23 13 L25 18 L17 18Z"/>
-        <circle cx="8"  cy="22" r="2.5"/>
-        <circle cx="8"  cy="22" r="1" fill="currentColor" stroke="none"/>
-        <circle cx="21" cy="22" r="2.5"/>
-        <circle cx="21" cy="22" r="1" fill="currentColor" stroke="none"/>
-        <path d="M9 10 L9 6 L15 6 L15 10"/>
-        <path d="M9 6 L12 4 L15 6"/>
-      </svg>
-    ),
-  },
-  {
-    id: "truck",
-    label: "Truck",
-    sub: "Heavy transport",
-    icon: (
-      <svg viewBox="0 0 28 28" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="8" width="16" height="12" rx="2"/>
-        <path d="M18 12 L24 12 L26 18 L18 18Z"/>
-        <rect x="2" y="8" width="16" height="7" rx="1"/>
-        <circle cx="7"  cy="22" r="2.8"/>
-        <circle cx="7"  cy="22" r="1.1" fill="currentColor" stroke="none"/>
-        <circle cx="22" cy="22" r="2.8"/>
-        <circle cx="22" cy="22" r="1.1" fill="currentColor" stroke="none"/>
-        <line x1="2" y1="15" x2="18" y2="15"/>
-      </svg>
-    ),
-  },
-] as const;
+// Vehicle type definition
+interface VehicleTypeOption {
+  id: string;
+  label: string;
+  description: string;
+  icon: React.ElementType;
+}
 
-type VehicleId = (typeof VEHICLE_TYPES)[number]["id"];
+const VEHICLE_TYPES: VehicleTypeOption[] = [
+  { id: "bike", label: "Bike", description: "2 wheeler", icon: Bike },
+  { id: "auto", label: "Auto", description: "3 wheeler ride", icon: Train },
+  { id: "car", label: "Car", description: "4 wheeler ride", icon: Car },
+  { id: "loading", label: "Loading", description: "Small goods", icon: Package },
+  { id: "truck", label: "Truck", description: "Heavy transport", icon: Truck },
+];
 
-export default function VehicleDetailsPage() {
-  const [selected, setSelected] = useState<VehicleId>("loading");
-  const [vehicleNumber, setVehicleNumber] = useState("MH12AB1234");
-  const [vehicleModel, setVehicleModel] = useState("Tata Ace");
+// Form data type
+interface VehicleFormData {
+  vehicleType: string;
+  vehicleNumber: string;
+  vehicleModel: string;
+}
+
+export default function VehicleDetailsPage(): React.ReactElement {
+  const [formData, setFormData] = useState<VehicleFormData>({
+    vehicleType: "",
+    vehicleNumber: "",
+    vehicleModel: "",
+  });
+
+  const isFormValid = formData.vehicleType && formData.vehicleNumber && formData.vehicleModel;
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleVehicleTypeSelect = (typeId: string) => {
+    setFormData((prev) => ({ ...prev, vehicleType: typeId }));
+  };
+
+  const handleContinue = () => {
+    console.log("Vehicle details submitted:", formData);
+    alert("Vehicle details submitted (demo).");
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-dm">
-      <div className="w-full max-w-[500px] bg-white rounded-3xl shadow-sm border border-gray-100 px-8 py-8">
-
-        {/* ── Step indicator ── */}
-        <p className="text-center font-dm text-xs text-gray-400 tracking-widest uppercase mb-3">
-          step 1 of 3
-        </p>
-
-        {/* ── Back + Title ── */}
-        <div className="relative flex items-center justify-center mb-1">
-          <button
-            className="absolute left-0 w-9 h-9 rounded-full border border-gray-200 bg-white hover:bg-gray-50 grid place-items-center transition-colors"
-            onClick={() => window.history.back()}
-          >
-            <ArrowLeft size={15} className="text-gray-600" />
-          </button>
-          <h1 className="font-syne font-extrabold text-[22px] text-gray-900 tracking-tight">
-            Vehicle Details
-          </h1>
+    <div className="min-h-screen bg-gradient-to-br from-white via-[#f8fffb] to-[#f0fdf4] flex items-center justify-center px-4 py-10 font-dm">
+      <div className="w-full max-w-[560px]">
+        {/* Step Badge */}
+        <div className="flex justify-center mb-6">
+          <Badge className="bg-[#f0fdf4] text-[#16a34a] border border-[#bbf7d0] px-4 py-1.5 rounded-full uppercase tracking-widest text-[11px] font-semibold hover:bg-[#f0fdf4]">
+            <span className="w-4 h-4 rounded-full bg-[#22c55e] text-white grid place-items-center text-[9px] mr-2">
+              1
+            </span>
+            Step 1 of 3
+          </Badge>
         </div>
 
-        <p className="text-center font-dm text-sm text-gray-400 mb-7">
-          Add your vehicle information
-        </p>
-
-        {/* ── Progress bar ── */}
-        <div className="flex gap-1.5 mb-8">
-          {[1, 2, 3].map((s) => (
-            <div
-              key={s}
-              className={cn(
-                "h-1 flex-1 rounded-full",
-                s === 1 ? "bg-gray-900" : "bg-gray-200"
-              )}
-            />
-          ))}
-        </div>
-
-        {/* ── Vehicle Type ── */}
-        <p className="font-dm text-sm font-semibold text-gray-700 mb-3">
-          Vehicle Type
-        </p>
-
-        <div className="grid grid-cols-3 gap-2.5 mb-6">
-          {VEHICLE_TYPES.map((v) => {
-            const isActive = selected === v.id;
-            return (
-              <button
-                key={v.id}
-                onClick={() => setSelected(v.id)}
-                className={cn(
-                  "flex flex-col items-center justify-center gap-2.5 rounded-2xl border-2 py-5 px-3 transition-all duration-150",
-                  isActive
-                    ? "bg-gray-900 border-gray-900 text-white"
-                    : "bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
-                )}
+        <Card className="rounded-3xl border border-gray-100 shadow-xl shadow-black/5 overflow-hidden">
+          <CardContent className="p-8">
+            {/* Header with back button */}
+            <div className="relative flex items-center justify-center mb-2">
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute left-0 rounded-full"
+                onClick={() => window.history.back()}
               >
-                {/* Icon circle */}
-                <div
-                  className={cn(
-                    "w-11 h-11 rounded-full grid place-items-center",
-                    isActive ? "bg-white/15" : "bg-gray-100"
-                  )}
-                >
-                  <span className={isActive ? "text-white" : "text-gray-700"}>
-                    {v.icon}
-                  </span>
-                </div>
+                <ArrowLeft size={16} />
+              </Button>
 
-                <div className="text-center">
-                  <p className={cn(
-                    "font-syne font-bold text-[13px] leading-tight",
-                    isActive ? "text-white" : "text-gray-900"
-                  )}>
-                    {v.label}
-                  </p>
-                  <p className={cn(
-                    "font-dm text-[11px] mt-0.5",
-                    isActive ? "text-white/70" : "text-gray-400"
-                  )}>
-                    {v.sub}
-                  </p>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+              <div className="text-center">
+                <h1 className="font-syne text-2xl font-extrabold tracking-tight text-gray-900">
+                  Vehicle Details
+                </h1>
+                <p className="text-sm text-gray-400 mt-1">
+                  Add your vehicle information
+                </p>
+              </div>
+            </div>
 
-        {/* ── Vehicle Number ── */}
-        <div className="mb-5">
-          <p className="font-dm text-sm font-semibold text-gray-700 mb-2">
-            Vehicle Number
-          </p>
-          <input
-            type="text"
-            value={vehicleNumber}
-            onChange={(e) => setVehicleNumber(e.target.value)}
-            placeholder="MH12AB1234"
-            className="w-full border-0 border-b-2 border-gray-200 focus:border-gray-900 outline-none bg-transparent font-dm text-sm text-gray-800 placeholder:text-gray-300 py-2.5 transition-colors"
-          />
-        </div>
+            {/* Vehicle Type Selection */}
+            <div className="mt-8">
+              <label className="block font-dm text-sm font-semibold text-gray-700 mb-3">
+                Vehicle Type
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {VEHICLE_TYPES.map(({ id, label, description, icon: Icon }) => {
+                  const isSelected = formData.vehicleType === id;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => handleVehicleTypeSelect(id)}
+                      className={cn(
+                        "flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all duration-200",
+                        isSelected
+                          ? "border-[#22c55e] bg-[#f0fdf4] shadow-sm"
+                          : "border-gray-100 bg-white hover:border-gray-200"
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "w-10 h-10 rounded-full flex items-center justify-center",
+                          isSelected ? "bg-[#22c55e]" : "bg-gray-100"
+                        )}
+                      >
+                        <Icon
+                          size={18}
+                          className={isSelected ? "text-white" : "text-gray-500"}
+                        />
+                      </div>
+                      <div className="text-center">
+                        <p
+                          className={cn(
+                            "font-syne text-sm font-bold",
+                            isSelected ? "text-[#22c55e]" : "text-gray-900"
+                          )}
+                        >
+                          {label}
+                        </p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">
+                          {description}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-        {/* ── Vehicle Model ── */}
-        <div className="mb-8">
-          <p className="font-dm text-sm font-semibold text-gray-700 mb-2">
-            Vehicle Model
-          </p>
-          <input
-            type="text"
-            value={vehicleModel}
-            onChange={(e) => setVehicleModel(e.target.value)}
-            placeholder="Tata Ace"
-            className="w-full border-0 border-b-2 border-gray-200 focus:border-gray-900 outline-none bg-transparent font-dm text-sm text-gray-800 placeholder:text-gray-300 py-2.5 transition-colors"
-          />
-        </div>
+            {/* Vehicle Number */}
+            <div className="mt-6">
+              <label className="block font-dm text-sm font-semibold text-gray-700 mb-2">
+                Vehicle Number
+              </label>
+              <input
+                type="text"
+                name="vehicleNumber"
+                value={formData.vehicleNumber}
+                onChange={handleInputChange}
+                placeholder="MH12AB1234"
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#22c55e] focus:ring-2 focus:ring-[#f0fdf4] outline-none transition font-dm text-sm"
+              />
+            </div>
 
-        {/* ── Continue ── */}
-        <Button className="w-full bg-gray-900 hover:bg-gray-700 text-white font-syne font-bold text-[15px] rounded-2xl h-14 tracking-tight">
-          Continue
-        </Button>
+            {/* Vehicle Model */}
+            <div className="mt-5">
+              <label className="block font-dm text-sm font-semibold text-gray-700 mb-2">
+                Vehicle Model
+              </label>
+              <input
+                type="text"
+                name="vehicleModel"
+                value={formData.vehicleModel}
+                onChange={handleInputChange}
+                placeholder="Tata Ace"
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#22c55e] focus:ring-2 focus:ring-[#f0fdf4] outline-none transition font-dm text-sm"
+              />
+            </div>
+
+            {/* Continue Button */}
+            <Button
+              disabled={!isFormValid}
+              className={cn(
+                "w-full mt-8 h-14 rounded-2xl font-syne text-[15px] font-bold tracking-tight",
+                isFormValid
+                  ? "bg-[#22c55e] hover:bg-[#16a34a]"
+                  : "bg-gray-900 hover:bg-black"
+              )}
+              onClick={handleContinue}
+            >
+              Continue →
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
