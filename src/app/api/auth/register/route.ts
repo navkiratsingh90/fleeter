@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
 
     if (!username || !email || !password) {
       return NextResponse.json(
-        { msg: "All fields are required", success: false },
+        { message: "All fields are required", success: false },
         { status: 400 }
       );
     }
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     if (existingUser && existingUser.isEmailVerified) {
       return NextResponse.json(
-        { msg: "User already exists", success: false },
+        { message: "User already exists", success: false },
         { status: 400 }
       );
     }
@@ -61,14 +61,14 @@ export async function POST(req: NextRequest) {
     );
 
     return NextResponse.json(
-      { msg: "OTP sent to email", success: true },
+      { message: "OTP sent to email", success: true },
       { status: 201 }
     );
   } catch (error) {
     console.error(error);
 
     return NextResponse.json(
-      { msg: "Internal Server Error", success: false },
+      { message: "Internal Server Error", success: false },
       { status: 500 }
     );
   }

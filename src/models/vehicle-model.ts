@@ -11,7 +11,6 @@ export interface IVehicle extends Document {
     | "van";
 
   vehicleModel: string;
-
   number: string;
 
   imageUrl: string;
@@ -55,7 +54,6 @@ const vehicleSchema = new mongoose.Schema<IVehicle>(
       required: true,
       trim: true,
     },
-
     number: {
       type: String,
       required: true,
