@@ -115,18 +115,19 @@ export default function DocumentUploadPage() {
               {documents.map((doc) => (
                 <div
                   key={doc.id}
-                  className={cn(
-                    "border rounded-2xl p-4 transition-all",
-                    doc.status === "uploaded"
+                  className={`
+                     border rounded-2xl p-4 transition-all 
+                    ${doc.status === "uploaded"
                       ? "border-[#22c55e] bg-[#f0fdf4]"
                       : "border-gray-100 bg-white hover:border-gray-200"
-                  )}
+                    }
+                  `}
                 >
                   <div className="flex items-start gap-4">
-                    <div className={cn(
-                      "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
-                      doc.status === "uploaded" ? "bg-[#22c55e]" : "bg-gray-100"
-                    )}>
+                    <div className={`
+                      w-10 h-10 rounded-full flex items-center justify-center shrink-0
+                      ${doc.status === "uploaded" ? "bg-[#22c55e]" : "bg-gray-100"}
+                    `}>
                       <div className={doc.status === "uploaded" ? "text-white" : "text-gray-500"}>
                         {doc.icon}
                       </div>
