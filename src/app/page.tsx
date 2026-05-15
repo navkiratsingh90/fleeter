@@ -1,11 +1,15 @@
 
-"use client"
+
+import { auth } from "@/auth";
+import AdminDashboard from "@/components/AdminDashboard";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
 import Home from "@/components/Home";
 import Navbar from "@/components/Navbar";
+import PartnerDashboard from "@/components/PartnerDashboard";
 import VehicleSlider from "@/components/VehicleSlider";
-import { usePathname } from "next/navigation";
+// import { useSession } from "next-auth/react";
+// import { usePathname } from "next/navigation";
 
 // export const metadata: Metadata = {
 //   title: "Veloce — Multi-Vendor Ride Sharing Platform",
@@ -38,12 +42,19 @@ const FOOTER_COLS = [
   },
 ] as const;
 
-export default function HomePage() {
-  const pathname = usePathname()
+export default async function HomePage() {
+  // const session = await auth()
+  // const pathname = usePathname()
   return (
     <main className="bg-[#0a0a0a] min-h-screen font-dm">
 
-      <Home/>
+      {
+        // session?.user.role == "partner" ? 
+        <PartnerDashboard/>
+        //  :
+        // session?.user.role == "admin" ? <AdminDashboard/> :
+        // <Home/>
+      }
       
     </main>
   );
