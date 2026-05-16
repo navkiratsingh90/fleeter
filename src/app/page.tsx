@@ -50,7 +50,7 @@ export default async function HomePage() {
 
       {
         // session?.user.role == "partner" ? 
-        <PartnerDashboard/>
+        <AdminDashboard/>
         //  :
         // session?.user.role == "admin" ? <AdminDashboard/> :
         // <Home/>
