@@ -11,6 +11,7 @@ export interface IUser extends Document {
   isEmailVerified : boolean,
   mobileNumber : string,
   partnerStatus : "pending" | "approved" | "rejected",
+  rejectionReason? : string,
   otpExpiresAt? : Date ,
   createdAt : Date,
   updatedAt : Date
@@ -45,6 +46,9 @@ const userSchema = new mongoose.Schema<IUser>(
       type: String,
       enum: ["user", "admin", "vendor"],
       default: "user", 
+    },
+    rejectionReason : {
+      type : String
     },
     isEmailVerified: {
       type : Boolean,
