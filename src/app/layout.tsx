@@ -33,9 +33,9 @@ export default function RootLayout({
       className={`${roboto.variable}`}
     >
       <body className={`${roboto.className} bg-[#0a0a0a]  text-white antialiased`}>
-      <Navbar/>
+      
         <Provider children={children}/>
-        <Footer/>
+
       </body>
     </html>
   );

@@ -1,7 +1,10 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
+
 import connectDb from "./lib/db";
 import User from "./models/user-model";
+
 import bcrypt from "bcryptjs";
 
 export const {
@@ -11,14 +14,23 @@ export const {
   auth,
 } = NextAuth({
   providers: [
+
+    // ================= GOOGLE PROVIDER =================
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+
+    // ================= CREDENTIAL PROVIDER =================
     CredentialsProvider({
       name: "Credentials",
 
       credentials: {
-        Email: {
+        email: {
           label: "Email",
           type: "text",
         },
+
         password: {
           label: "Password",
           type: "password",
@@ -26,14 +38,14 @@ export const {
       },
 
       async authorize(credentials) {
-        if (!credentials?.Email || !credentials.password) {
+        if (!credentials?.email || !credentials.password) {
           throw new Error("Invalid credentials");
         }
 
         await connectDb();
 
         const user = await User.findOne({
-          email: credentials.Email,
+          email: credentials.email,
         });
 
         if (!user) {
@@ -41,8 +53,8 @@ export const {
         }
 
         const isMatch = await bcrypt.compare(
-          credentials.password,
-          user.password
+          credentials.password as string,
+          user.password as string
         );
 
         if (!isMatch) {
@@ -52,7 +64,7 @@ export const {
         return {
           id: user._id.toString(),
           email: user.email,
-          name: user.username,
+          name: user.name,
           role: user.role,
         };
       },
@@ -60,16 +72,64 @@ export const {
   ],
 
   callbacks: {
+
+    // ================= SIGN IN CALLBACK =================
+    async signIn({ user, account }) {
+
+      // Only for Google Login
+      if (account?.provider === "google") {
+
+        await connectDb();
+
+        const existingUser = await User.findOne({
+          email: user.email,
+        });
+
+        // Create user if not exists
+        if (!existingUser) {
+
+          await User.create({
+            name: user.name,
+            email: user.email,
+
+            // Google users don't need password
+            password: "GOOGLE_AUTH",
+
+            isEmailVerified: true,
+
+            role: "user",
+          });
+        }
+      }
+
+      return true;
+    },
+
+    // ================= JWT CALLBACK =================
     async jwt({ token, user }) {
+
+      await connectDb();
+
+      // Find current DB user
+      const dbUser = await User.findOne({
+        email: token.email,
+      });
+
+      if (dbUser) {
+        token.id = dbUser._id.toString();
+        token.role = dbUser.role;
+      }
+
       if (user) {
         token.id = user.id;
-        token.role = user.role;
       }
 
       return token;
     },
 
+    // ================= SESSION CALLBACK =================
     async session({ session, token }) {
+
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;

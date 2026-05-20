@@ -8,6 +8,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"; // adjust import path to your shadcn setup
+// import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
 
 const NAV_LINKS = ["Home", "Bookings", "About Us", "Contact Us"] as const;
 
@@ -18,6 +21,7 @@ const demoUser = {
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { data: session } = useSession();
 
   return (
     <section className="bg-white">
@@ -57,32 +61,55 @@ const Navbar = () => {
         </div>
 
         {/* Desktop Right Section: User Icon + Popover */}
+        {/* Desktop Right Section */}
         <div className="hidden md:flex items-center gap-4">
+
+        {!session ? (
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              className="rounded-full px-5"
+            >
+              <Link href={'/signin'}>Sign In</Link>
+            </Button>
+
+            <Button className="rounded-full bg-[#22c55e] hover:bg-[#16a34a] text-white px-5">
+              Sign Up
+            </Button>
+          </div>
+        ) : (
           <Popover>
             <PopoverTrigger asChild>
               <button className="text-gray-700 hover:text-gray-900 transition-colors">
                 <User size={20} />
               </button>
             </PopoverTrigger>
+
             <PopoverContent className="w-56 p-3" align="end">
               <div className="flex flex-col gap-2">
+
                 <p className="text-sm font-medium text-gray-900">
-                  {demoUser.name}
+                  {session.user?.name}
                 </p>
+
+                <p className="text-xs text-gray-500">
+                  {session.user?.name}
+                </p>
+
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full mt-1 text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
-                  onClick={() => {
-                    // Add your logout logic here
-                    console.log("Logout clicked");
-                  }}
+                  className="w-full mt-2 text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+                  onClick={() => signOut()}
                 >
                   Logout
                 </Button>
+
               </div>
             </PopoverContent>
           </Popover>
+        )}
+
         </div>
 
         {/* Mobile Menu Button */}
