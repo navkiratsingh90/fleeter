@@ -6,25 +6,26 @@ import { ArrowLeft, ShieldCheck, CreditCard, Building, Phone, IndianRupee } from
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 // Type for form data
 interface BankPayoutForm {
-  accountHolderName: string;
-  asPerBankRecords: boolean;
-  bankAccountNumber: string;
-  ifscCode: string;
+  accountHolder: string;
+  accountNumber: string;
+  ifsc: string;
   mobileNumber: string;
-  upiId: string;
+  upi: string;
 }
 
 export default function BankPayoutPage(): React.ReactElement {
+  const router = useRouter()
   const [formData, setFormData] = useState<BankPayoutForm>({
-    accountHolderName: "",
-    asPerBankRecords: false,
-    bankAccountNumber: "",
-    ifscCode: "",
+    accountHolder: "",
+    accountNumber: "",
+    ifsc: "",
     mobileNumber: "",
-    upiId: "",
+    upi: "",
   });
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -36,16 +37,24 @@ export default function BankPayoutPage(): React.ReactElement {
   };
 
   const isFormValid = Boolean(
-    formData.accountHolderName &&
-    formData.bankAccountNumber &&
-    formData.ifscCode &&
+    formData.accountHolder &&
+    formData.accountNumber &&
+    formData.ifsc &&
     formData.mobileNumber
   );
 
-  const handleContinue = (): void => {
-    console.log(formData);
-    alert("Bank details submitted for verification (demo).");
-  };
+  const handleContinue = async () => {
+    try {
+      console.log(formData);
+      
+        const data = await axios.post('/api/partner/onboarding/bank' , formData)
+        console.log(data);
+        router.push('/')
+    } catch (error) {
+        console.error(error);
+        
+    }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-[#f8fffb] to-[#f0fdf4] flex items-center justify-center px-4 py-10 font-dm">
@@ -93,22 +102,12 @@ export default function BankPayoutPage(): React.ReactElement {
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                   <input
                     type="text"
-                    name="accountHolderName"
-                    value={formData.accountHolderName}
+                    name="accountHolder"
+                    value={formData.accountHolder}
                     onChange={handleInputChange}
                     placeholder="Enter full name as per bank"
                     className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#22c55e] focus:ring-2 focus:ring-[#f0fdf4] outline-none transition font-dm text-sm"
                   />
-                  <label className="flex items-center gap-2 text-gray-600 cursor-pointer select-none font-dm text-sm whitespace-nowrap">
-                    <input
-                      type="checkbox"
-                      name="asPerBankRecords"
-                      checked={formData.asPerBankRecords}
-                      onChange={handleInputChange}
-                      className="w-4 h-4 rounded border-gray-300 text-[#22c55e] focus:ring-[#22c55e]"
-                    />
-                    <span>As per bank records</span>
-                  </label>
                 </div>
               </div>
 
@@ -121,8 +120,8 @@ export default function BankPayoutPage(): React.ReactElement {
                   <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="text"
-                    name="bankAccountNumber"
-                    value={formData.bankAccountNumber}
+                    name="accountNumber"
+                    value={formData.accountNumber}
                     onChange={handleInputChange}
                     placeholder="Enter account number"
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#22c55e] focus:ring-2 focus:ring-[#f0fdf4] outline-none transition font-dm text-sm"
@@ -139,8 +138,8 @@ export default function BankPayoutPage(): React.ReactElement {
                   <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="text"
-                    name="ifscCode"
-                    value={formData.ifscCode}
+                    name="ifsc"
+                    value={formData.ifsc}
                     onChange={handleInputChange}
                     placeholder="HDFC0001234"
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#22c55e] focus:ring-2 focus:ring-[#f0fdf4] outline-none transition font-dm text-sm"
@@ -176,8 +175,8 @@ export default function BankPayoutPage(): React.ReactElement {
                   <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="text"
-                    name="upiId"
-                    value={formData.upiId}
+                    name="upi"
+                    value={formData.upi}
                     onChange={handleInputChange}
                     placeholder="name@upi"
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#22c55e] focus:ring-2 focus:ring-[#f0fdf4] outline-none transition font-dm text-sm"

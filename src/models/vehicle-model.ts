@@ -64,24 +64,21 @@ const vehicleSchema = new mongoose.Schema<IVehicle>(
 
     imageUrl: {
       type: String,
-      required: true,
     },
 
     baseFare: {
       type: Number,
-      required: true,
       min: 0,
     },
 
     pricePerKm: {
       type: Number,
-      required: true,
+  
       min: 0,
     },
 
     waitingCharge: {
       type: Number,
-      required: true,
       min: 0,
       default: 0,
     },

@@ -8,9 +8,12 @@ const VEHICLE_REGEX = /^[A-Z]{2}[0-9]{1,2}[A-Z]{0,2}[0-9]{4}$/;
 
 export async function POST(req: NextRequest) {
   try {
+
     await connectDb();
 
     const session = await auth();
+    console.log(session);
+    
 
     if (!session || !session.user?.email) {
       return NextResponse.json(
@@ -66,7 +69,13 @@ export async function POST(req: NextRequest) {
       existingVehicle.vehicleModel = vehicleModel;
       existingVehicle.number = finalNumber;
       existingVehicle.type = type;
-
+      if (user.partnerOnboardingSteps < 1) {
+        user.partnerOnboardingSteps = 1;
+      }
+  
+      user.role = "partner";
+  
+      await user.save();
       await existingVehicle.save();
 
       return NextResponse.json(
@@ -74,6 +83,7 @@ export async function POST(req: NextRequest) {
           success: true,
           message: "Vehicle updated successfully",
           vehicle: existingVehicle,
+          user
         },
         { status: 200 }
       );
@@ -99,6 +109,7 @@ export async function POST(req: NextRequest) {
         success: true,
         message: "Vehicle added successfully",
         vehicle: newVehicle,
+        user
       },
       { status: 201 }
     );

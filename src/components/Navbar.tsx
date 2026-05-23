@@ -74,7 +74,7 @@ const Navbar = () => {
             </Button>
 
             <Button className="rounded-full bg-[#22c55e] hover:bg-[#16a34a] text-white px-5">
-              Sign Up
+            <Link href={'/signup'}>Sign up</Link>
             </Button>
           </div>
         ) : (

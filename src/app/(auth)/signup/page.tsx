@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Mail, Lock, User } from "lucide-react";
 import Image from "next/image";
 import google from "./../../../../public/google.png";
+import axios from "axios";
+import { signIn } from "next-auth/react";
 
 export default function RegisterPage() {
   const [name, setName] = useState<string>("");
@@ -13,15 +15,15 @@ export default function RegisterPage() {
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-    setError("");
-    // handle register + trigger OTP send
-  };
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   try {
+  //       const data = await axios.get('/api/auth/')
+  //   } catch (error) {
+  //     console.error(error);
+      
+  //   }
+  // };
 
   return (
     <main className="min-h-screen bg-white flex items-center justify-center px-4 py-8">
@@ -37,14 +39,25 @@ export default function RegisterPage() {
 
         {/* Google OAuth */}
         <div className="mt-6">
-          <Button
+          {/* <Button
             type="button"
             variant="outline"
             className="h-12 w-full flex gap-4 rounded-xl border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50"
           >
             <Image src={google} width={25} alt="google" />
             Continue with Google
-          </Button>
+          </Button> */}
+           <button
+            className="h-12 w-full flex gap-4 rounded-xl border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50"
+        onClick={() =>
+          signIn("google", {
+            callbackUrl: "/",
+          })
+        }
+      >
+        Continue with Google
+      </button>
+
         </div>
 
         {/* Divider */}
@@ -61,7 +74,9 @@ export default function RegisterPage() {
         </h2>
 
         {/* Form */}
-        <form className="mt-5 space-y-3" onSubmit={handleSubmit}>
+        <form className="mt-5 space-y-3" 
+        // onSubmit={handleSubmit}
+        >
           <div className="relative">
             <User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
             <Input

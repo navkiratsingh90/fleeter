@@ -6,6 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Upload, Shield, CheckCircle, FileText, User, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 interface DocumentItem {
   id: string;
@@ -15,9 +17,11 @@ interface DocumentItem {
   required: boolean;
   status: "pending" | "uploaded";
   fileName?: string;
+  file?: File;
 }
 
 export default function DocumentUploadPage() {
+  const router = useRouter()
   const [documents, setDocuments] = useState<DocumentItem[]>([
     {
       id: "aadhaar",
@@ -46,31 +50,81 @@ export default function DocumentUploadPage() {
   ]);
 
   const handleUpload = (docId: string) => {
+
     const input = document.createElement("input");
+  
     input.type = "file";
+  
     input.accept = "image/*,application/pdf";
+  
     input.onchange = (e) => {
+  
       const file = (e.target as HTMLInputElement).files?.[0];
+  
       if (file) {
+  
         setDocuments((prev) =>
           prev.map((doc) =>
             doc.id === docId
-              ? { ...doc, status: "uploaded", fileName: file.name }
+              ? {
+                  ...doc,
+                  status: "uploaded",
+                  fileName: file.name,
+                  file,
+                }
               : doc
           )
         );
       }
     };
+
     input.click();
   };
-
+  
   const allUploaded = documents.every((doc) => doc.status === "uploaded");
 
-  const handleContinue = () => {
-    if (allUploaded) {
-      alert("Documents verified! Proceeding to next step.");
-    } else {
-      alert("Please upload all required documents first.");
+  const handleContinue = async () => {
+
+    try {
+  
+      const formData = new FormData();
+  
+      const aadhaar = documents.find(
+        (doc) => doc.id === "aadhaar"
+      );
+  
+      const driving = documents.find(
+        (doc) => doc.id === "driving"
+      );
+  
+      const vehicle = documents.find(
+        (doc) => doc.id === "vehicle"
+      );
+  
+      if (aadhaar?.file) {
+        formData.append("aadhaar", aadhaar.file);
+      }
+  
+      if (driving?.file) {
+        formData.append("license", driving.file);
+      }
+  
+      if (vehicle?.file) {
+        formData.append("rc", vehicle.file);
+      }
+  
+      const data = await axios.post(
+        "/api/partner/onboarding/documents",
+        formData
+      );
+  
+      console.log(data);
+  
+      router.push("/partner/onboarding/bank");
+  
+    } catch (error) {
+  
+      console.error(error);
     }
   };
 

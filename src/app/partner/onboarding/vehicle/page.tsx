@@ -7,6 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 // Vehicle type definition
 interface VehicleTypeOption {
@@ -32,6 +34,7 @@ interface VehicleFormData {
 }
 
 export default function VehicleDetailsPage(): React.ReactElement {
+  const router = useRouter()
   const [formData, setFormData] = useState<VehicleFormData>({
     vehicleType: "",
     vehicleNumber: "",
@@ -49,9 +52,21 @@ export default function VehicleDetailsPage(): React.ReactElement {
     setFormData((prev) => ({ ...prev, vehicleType: typeId }));
   };
 
-  const handleContinue = () => {
-    console.log("Vehicle details submitted:", formData);
-    alert("Vehicle details submitted (demo).");
+  const handleContinue = async () => {
+      try {
+        console.log(formData);
+        
+          const data = await axios.post('/api/partner/onboarding/vehicle' , {
+            vehicleModel : formData.vehicleModel,
+            number : formData.vehicleNumber,
+            type : formData.vehicleType
+          })
+          console.log(data);
+          router.push('/partner/onboarding/documents')
+      } catch (error) {
+          console.error(error);
+          
+      }
   };
 
   return (

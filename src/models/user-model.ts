@@ -5,7 +5,7 @@ export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
-  role: "user" | "admin" | "vendor";
+  role: "user" | "admin" | "partner";
   otp : string | null,
   partnerOnboardingSteps : number,
   isEmailVerified : boolean,
@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema<IUser>(
     },
     role: {
       type: String,
-      enum: ["user", "admin", "vendor"],
+      enum: ["user", "admin", "partner"],
       default: "user", 
     },
     rejectionReason : {
