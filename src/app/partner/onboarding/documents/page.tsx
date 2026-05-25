@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -124,10 +124,9 @@ export default function DocumentUploadPage() {
   
     } catch (error) {
   
-      console.error(error);
+      console.log(error);
     }
-  };
-
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-[#f8fffb] to-[#f0fdf4] flex items-center justify-center px-4 py-10 font-dm">
       <div className="w-full max-w-[560px]">

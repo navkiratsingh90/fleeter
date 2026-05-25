@@ -8,7 +8,8 @@ import { sendMail } from "@/lib/send-mail";
 export async function POST(req: NextRequest) {
   try {
     const { username, email, password } = await req.json();
-
+    console.log(username , email, password);
+    
     if (!username || !email || !password) {
       return NextResponse.json(
         { message: "All fields are required", success: false },
@@ -61,7 +62,9 @@ export async function POST(req: NextRequest) {
     );
 
     return NextResponse.json(
-      { message: "OTP sent to email", success: true },
+      { message: "OTP sent to email",
+        email,
+         success: true },
       { status: 201 }
     );
   } catch (error) {

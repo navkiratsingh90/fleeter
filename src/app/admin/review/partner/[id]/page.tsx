@@ -24,7 +24,7 @@
 // app/admin/partners/review/[id]/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   CarFront,
@@ -48,6 +48,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { useParams } from "next/navigation";
+import axios from "axios";
 
 // Helper Components
 function DetailRow({ label, value }: { label: string; value: string }) {
@@ -87,26 +89,11 @@ export default function PartnerReviewPage() {
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
+  const { id } = useParams();
 
-  // Mock data
-  const partner = {
-    name: "Ankush Sahu",
-    email: "ankush25102002@gmail.com",
-    status: "Pending",
-    vehicle: {
-      type: "bike",
-      registrationNumber: "UP93AS1234",
-      model: "hunter 350",
-    },
-    bank: {
-      accountHolder: "ayush sahu",
-      accountNumber: "123456789",
-      ifscCode: "HDFC0012344",
-      upi: "-",
-    },
-    documents: ["Aadhaar", "Registration Certificate", "Driving License"],
-  };
+const [partner, setPartner] = useState<any>(null);
 
+const [loading, setLoading] = useState(true)
   const handleApproveConfirm = () => {
     alert("Partner approved (demo)");
     setApproveDialogOpen(false);
@@ -121,7 +108,36 @@ export default function PartnerReviewPage() {
     setRejectDialogOpen(false);
     setRejectionReason("");
   };
+  const handleGetPartner = async () => {
+    try {
+  
+      const data = await axios.get(
+        `/api/admin/partners/review/${id}`
+      );
+  
+      console.log(data.data);
+  
+      setPartner(data.data);
+  
+    } catch (error: any) {
+  
+      console.log(
+        error.response?.data?.message
+      );
+  
+    } finally {
+  
+      setLoading(false);
+  
+    }
+  };
+  useEffect(() => {
 
+    if (id) {
+      handleGetPartner();
+    }
+  
+  }, [id]);
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-[#f8fffb] to-[#f0fdf4] font-dm">
       {/* Sticky Header */}
@@ -174,7 +190,7 @@ export default function PartnerReviewPage() {
                   <h2 className="font-syne text-lg font-bold text-gray-900">Documents</h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  {partner.documents.map((doc) => (
+                  {partner.documents.map((doc : any) => (
                     <DocumentPreview key={doc} title={doc} />
                   ))}
                 </div>

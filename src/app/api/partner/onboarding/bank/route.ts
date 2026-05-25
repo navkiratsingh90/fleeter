@@ -181,6 +181,7 @@ export async function GET(req: NextRequest) {
             success: true,
             message: "Bank details fetched successfully",
             partnerBank,
+            mobileNumber : user.mobileNumber
          },
          {
             status: 200,

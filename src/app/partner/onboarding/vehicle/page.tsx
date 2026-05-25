@@ -1,7 +1,7 @@
 // app/vehicle-details/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Bike, Car, Truck, Package, Train } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -68,7 +68,21 @@ export default function VehicleDetailsPage(): React.ReactElement {
           
       }
   };
-
+  useEffect(() => {
+    const getUserVehicle = async () => {
+      try {
+          const data = await axios.get('/api/partner/onboarding/vehicle')
+          console.log(data);
+          setFormData((prev) => ({...prev , vehicleModel : data.data.vehicle.vehicleModel}))
+          setFormData((prev) => ({...prev , vehicleType : data.data.vehicle.type}))
+          setFormData((prev) => ({...prev , vehicleNumber : data.data.vehicle.number}))
+      } catch (error) {
+        console.error();
+        
+      }
+    }
+    getUserVehicle()
+  },[])
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-[#f8fffb] to-[#f0fdf4] flex items-center justify-center px-4 py-10 font-dm">
       <div className="w-full max-w-[560px]">

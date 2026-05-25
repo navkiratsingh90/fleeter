@@ -8,22 +8,51 @@ import Image from "next/image";
 import google from "./../../../../public/google.png";
 import axios from "axios";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useAppDispatch } from "@/redux/hooks";
+import { handleEmail } from "@/redux/features/userSlice";
 
 export default function RegisterPage() {
-  const [name, setName] = useState<string>("");
+  const dispatch = useAppDispatch()
+  const router = useRouter()
+  const [username, setUserName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
 
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   try {
-  //       const data = await axios.get('/api/auth/')
-  //   } catch (error) {
-  //     console.error(error);
-      
-  //   }
-  // };
+  const handleSubmit = async (
+    e: React.FormEvent
+  ) => {
+  
+    e.preventDefault();
+  
+    try {
+  
+      const data = await axios.post(
+        "/api/auth/register",
+        {
+          username,
+          email,
+          password,
+        }
+      );
+  
+      console.log(data.data);
+  
+      dispatch(
+        handleEmail(data.data.email)
+      );
+  
+      router.push("/otp");
+  
+    } catch (error: any) {
+  
+      console.log(
+        error.response?.data?.message
+      );
+  
+    }
+  };
 
   return (
     <main className="min-h-screen bg-white flex items-center justify-center px-4 py-8">
@@ -75,13 +104,13 @@ export default function RegisterPage() {
 
         {/* Form */}
         <form className="mt-5 space-y-3" 
-        // onSubmit={handleSubmit}
+        onSubmit={handleSubmit}
         >
           <div className="relative">
             <User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
             <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={username}
+              onChange={(e) => setUserName(e.target.value)}
               placeholder="Full name"
               className="h-12 rounded-xl text-gray-800 border-zinc-200 pl-11 text-[14px]"
             />

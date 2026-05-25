@@ -1,8 +1,13 @@
+// app/auth/otp/page.tsx
 "use client";
 
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck } from "lucide-react";
+import { useAppSelector } from "@/redux/hooks";
+import { RootState } from "@/redux/store";
+import { Card, CardContent } from "@/components/ui/card";
+import axios from "axios";
 
 const OTP_LENGTH = 6;
 
@@ -11,31 +16,25 @@ export default function OtpPage() {
   const [error, setError] = useState<string>("");
   const [resendTimer, setResendTimer] = useState<number>(0);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const email = useAppSelector((state: RootState) => state.User.email);
 
-  // Handle digit input
   const handleChange = (index: number, value: string) => {
-    // Allow only digits
     if (!/^\d*$/.test(value)) return;
-
     const updated = [...otp];
-    updated[index] = value.slice(-1); // keep last digit only
+    updated[index] = value.slice(-1);
     setOtp(updated);
     setError("");
-
-    // Move focus forward
     if (value && index < OTP_LENGTH - 1) {
       inputRefs.current[index + 1]?.focus();
     }
   };
 
-  // Handle backspace
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
-  // Handle paste
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, OTP_LENGTH);
@@ -43,12 +42,10 @@ export default function OtpPage() {
     const updated = Array(OTP_LENGTH).fill("");
     pasted.split("").forEach((char, i) => { updated[i] = char; });
     setOtp(updated);
-    // Focus the next empty box or last box
     const nextIndex = Math.min(pasted.length, OTP_LENGTH - 1);
     inputRefs.current[nextIndex]?.focus();
   };
 
-  // Resend OTP with cooldown
   const handleResend = () => {
     setResendTimer(30);
     setOtp(Array(OTP_LENGTH).fill(""));
@@ -61,134 +58,129 @@ export default function OtpPage() {
         return prev - 1;
       });
     }, 1000);
-
-    // trigger resend OTP API call here
+    // API call to resend OTP
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = otp.join("");
     if (code.length < OTP_LENGTH) {
       setError("Please enter all 6 digits.");
       return;
     }
-    setError("");
-    // verify OTP logic
-    console.log("OTP submitted:", code);
+    try {
+
+      // setLoading(true);
+  
+      const response = await axios.post(
+        "/api/auth/verify-email",
+        {
+          email,
+          otp,
+        }
+      );
+  
+      alert(response.data.message);
+  
+    } catch (error: any) {
+  
+      alert(error.response?.data?.message);
+  
+    } finally {
+  
+      // setLoading(false);
+    }
   };
 
   const isFilled = otp.every((d) => d !== "");
 
   return (
-    <main className="min-h-screen bg-white flex items-center justify-center px-4 py-8">
-      <div className="relative w-full max-w-[450px] rounded-[28px] bg-white px-8 py-8 shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-zinc-200">
+    <div className="min-h-screen bg-gradient-to-br from-white via-[#f8fffb] to-[#f0fdf4] flex items-center justify-center px-4 py-8 font-dm">
+      <div className="w-full max-w-[420px]">
+        <Card className="rounded-3xl border-gray-100 shadow-xl overflow-hidden">
+          <CardContent className="p-6">
+            {/* Header */}
+            <div className="text-center mb-4">
+              <div className="flex justify-center mb-3">
+                <div className="w-12 h-12 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-center">
+                  <ShieldCheck className="h-6 w-6 text-green-600" />
+                </div>
+              </div>
+              <h2 className="font-syne text-xl font-bold text-gray-900">
+                Verify Your Email
+              </h2>
+              <p className="text-xs text-gray-500 mt-1">
+                Enter the 6-digit code sent to your email
+              </p>
+            </div>
 
-        {/* Brand Header */}
-        <div className="flex flex-col items-center text-center">
-          <h1 className="text-[32px] font-black tracking-[0.18em] text-zinc-950">
-            Fleeter
-          </h1>
-          <p className="mt-1 text-sm text-zinc-500">Premium Vehicle Booking</p>
-        </div>
+            {/* OTP Inputs */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="flex justify-center gap-2">
+                {otp.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={(el) => { inputRefs.current[index] = el; }}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleChange(index, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(index, e)}
+                    onPaste={handlePaste}
+                    className={`
+                      h-12 w-10 rounded-lg border text-center text-lg font-bold
+                      outline-none transition-all
+                      ${digit
+                        ? "border-green-500 bg-green-50 text-green-700"
+                        : "border-gray-200 bg-white text-gray-900"
+                      }
+                      focus:border-green-500 focus:ring-2 focus:ring-green-100
+                    `}
+                  />
+                ))}
+              </div>
 
-        {/* Icon */}
-        <div className="mt-6 flex justify-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-green-50 border border-green-100">
-            <ShieldCheck className="h-8 w-8 text-green-500" />
-          </div>
-        </div>
+              {error && (
+                <p className="text-center text-xs text-red-500">{error}</p>
+              )}
 
-        {/* Heading */}
-        <div className="mt-5 text-center">
-          <h2 className="text-[24px] font-semibold text-zinc-950">
-            Verify Your Email
-          </h2>
-          <p className="mt-2 text-sm text-zinc-500 leading-relaxed">
-            We&apos;ve sent a 6-digit verification code to your email address. Enter it below to continue.
-          </p>
-        </div>
+              <Button
+                type="submit"
+                disabled={!isFilled}
+                className="w-full bg-green-600 hover:bg-green-700 rounded-xl text-sm font-semibold h-11"
+              >
+                Verify & Continue
+              </Button>
+            </form>
 
-        {/* OTP Inputs */}
-        <form className="mt-7" onSubmit={handleSubmit}>
-          <div className="flex justify-center gap-3">
-            {otp.map((digit, index) => (
-              <input
-                key={index}
-                ref={(el) => { inputRefs.current[index] = el; }}
-                type="text"
-                inputMode="numeric"
-                maxLength={1}
-                value={digit}
-                onChange={(e) => handleChange(index, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(index, e)}
-                onPaste={handlePaste}
-                className={`
-                  h-14 w-12 rounded-xl border text-center text-[22px] font-bold text-zinc-900
-                  outline-none transition-all duration-150 caret-transparent
-                  ${digit
-                    ? "border-green-500 bg-green-50 text-green-700"
-                    : "border-zinc-200 bg-white text-zinc-900"
-                  }
-                  focus:border-green-500 focus:ring-2 focus:ring-green-100
-                `}
-              />
-            ))}
-          </div>
-
-          {/* Error */}
-          {error && (
-            <p className="mt-3 text-center text-[13px] text-red-500">*{error}</p>
-          )}
-
-          {/* Submit */}
-          <Button
-            type="submit"
-            disabled={!isFilled}
-            className="mt-6 h-12 w-full rounded-xl bg-green-500 text-sm text-white hover:bg-zinc-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            Verify & Continue
-          </Button>
-        </form>
-
-        {/* Divider */}
-        <div className="my-5 flex items-center gap-4">
-          <div className="h-px flex-1 bg-zinc-200" />
-          <span className="text-xs font-medium tracking-[0.2em] text-zinc-400">
-            DIDN&apos;T RECEIVE IT?
-          </span>
-          <div className="h-px flex-1 bg-zinc-200" />
-        </div>
-
-        {/* Resend */}
-        <div className="text-center">
-          {resendTimer > 0 ? (
-            <p className="text-sm text-zinc-400">
-              Resend code in{" "}
-              <span className="font-semibold text-zinc-700">
-                {resendTimer}s
-              </span>
-            </p>
-          ) : (
-            <button
-              type="button"
-              onClick={handleResend}
-              className="text-sm font-semibold text-zinc-950 hover:text-zinc-600 transition-colors"
-            >
-              Resend Code
-            </button>
-          )}
-        </div>
-
-        {/* Back to register */}
-        <div className="mt-4 text-center">
-          <button
-            type="button"
-            className="text-sm text-zinc-400 hover:text-zinc-700 transition-colors"
-          >
-            ← Back to Sign Up
-          </button>
-        </div>
+            {/* Resend & Back */}
+            <div className="mt-4 text-center space-y-2">
+              {resendTimer > 0 ? (
+                <p className="text-xs text-gray-400">
+                  Resend code in <span className="font-semibold text-gray-700">{resendTimer}s</span>
+                </p>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  className="text-xs font-semibold text-green-600 hover:text-green-700"
+                >
+                  Resend Code
+                </button>
+              )}
+              <div>
+                <button
+                  type="button"
+                  className="text-xs text-gray-400 hover:text-gray-600"
+                >
+                  ← Back to Sign Up
+                </button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-    </main>
+    </div>
   );
 }

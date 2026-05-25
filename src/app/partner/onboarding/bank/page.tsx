@@ -1,7 +1,7 @@
 // app/bank-payout/page.tsx
 "use client";
 
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useEffect } from "react";
 import { ArrowLeft, ShieldCheck, CreditCard, Building, Phone, IndianRupee } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -55,7 +55,23 @@ export default function BankPayoutPage(): React.ReactElement {
         
     }
 };
-
+useEffect(() => {
+  const getUserVehicle = async () => {
+    try {
+        const data = await axios.get('/api/partner/onboarding/bank')
+        console.log(data);
+        setFormData((prev) => ({...prev, accountHolder : data.data.partnerBank.accountHolder}))
+         setFormData((prev) => ({...prev, accountNumber : data.data.partnerBank.accountNumber}))
+          setFormData((prev) => ({...prev, ifsc : data.data.partnerBank.ifsc}))
+           setFormData((prev) => ({...prev, mobileNumber : data.data.mobileNumber}))
+            setFormData((prev) => ({...prev, upi : data.data.partnerBank.upi}))
+    } catch (error) {
+      console.error();
+      
+    }
+  }
+  getUserVehicle()
+},[])
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-[#f8fffb] to-[#f0fdf4] flex items-center justify-center px-4 py-10 font-dm">
       <div className="w-full max-w-[560px]">
