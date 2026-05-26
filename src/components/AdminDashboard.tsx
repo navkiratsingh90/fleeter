@@ -34,11 +34,17 @@ interface StatsType {
   totalRejectedPartners: number;
 }
 
-interface PendingPartnerType {
+export interface PendingPartnerType {
   _id: string;
   name: string;
   email: string;
   vehicleType: string;
+}
+export interface PendingPartnerKyc{
+  _id : string,
+  name : string,
+  email : string,
+  createdAt? : string
 }
 
 export default function AdminPartnersPage() {
@@ -48,6 +54,7 @@ export default function AdminPartnersPage() {
     totalPendingPartners: 0,
     totalRejectedPartners: 0,
   });
+  const [partnersKyc , setPartnerKyc] = useState<PendingPartnerKyc[]>([])
 
   const [pendingPartners, setPendingPartners] = useState<
     PendingPartnerType[]
@@ -72,8 +79,26 @@ export default function AdminPartnersPage() {
       setLoading(false);
     }
   };
-
+  const getPendingKyc = async () => {
+    try {
+  
+      const { data } = await axios.get(
+        "/api/admin/video-kyc/pending"
+      );
+  
+      setPartnerKyc(data.partners)
+      console.log(data)
+  
+    } catch (error: any) {
+  
+      console.log(
+        error.response?.data?.message ||
+        error.message
+      );
+    }
+  };
   useEffect(() => {
+    getPendingKyc()
     handleGetDashboardData();
   }, []);
 
@@ -113,7 +138,8 @@ export default function AdminPartnersPage() {
         {/* Pending Partners */}
         <div className="mt-10">
           <PendingTabs 
-          // partners={pendingPartners} 
+          pendingKyc = {partnersKyc}
+          partner={pendingPartners}
           />
         </div>
       </main>

@@ -14,10 +14,24 @@ export default function LoginPage() {
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
 
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-    
-  // };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+  
+    setError("");
+  
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+  
+    if (result?.error) {
+      setError(result.error);
+      return;
+    }
+  
+    window.location.href = "/";
+  };
 
   return (
     <main className="min-h-screen bg-white flex items-center justify-center px-4 py-8">
@@ -59,7 +73,7 @@ export default function LoginPage() {
 
         {/* Form */}
         <form className="mt-5 space-y-3" 
-        // onSubmit={handleSubmit}
+        onSubmit={handleSubmit}
         >
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />

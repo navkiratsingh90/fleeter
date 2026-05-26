@@ -73,9 +73,11 @@ export default function VehicleDetailsPage(): React.ReactElement {
       try {
           const data = await axios.get('/api/partner/onboarding/vehicle')
           console.log(data);
+          if (data.status == 200){
           setFormData((prev) => ({...prev , vehicleModel : data.data.vehicle.vehicleModel}))
           setFormData((prev) => ({...prev , vehicleType : data.data.vehicle.type}))
           setFormData((prev) => ({...prev , vehicleNumber : data.data.vehicle.number}))
+          }
       } catch (error) {
         console.error();
         

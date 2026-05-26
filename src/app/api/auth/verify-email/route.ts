@@ -37,8 +37,9 @@ export async function POST(req: NextRequest) {
         { message: "OTP expired" },
         { status: 400 }
       );
-    }
-
+    } 
+    console.log(user.otp , otp);
+    
     if (!user.otp || user.otp !== otp) {
       return NextResponse.json(
         { message: "Invalid OTP" },

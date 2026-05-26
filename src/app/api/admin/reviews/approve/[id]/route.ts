@@ -67,6 +67,7 @@ export async function POST(
       }
 
       partner.partnerStatus = "approved";
+      partner.videoKycStatus = "pending"
       partner.partnerOnboardingSteps = 4;
 
       partnerBank.status = "verified";

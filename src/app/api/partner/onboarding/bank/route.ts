@@ -105,9 +105,16 @@ export async function POST(req: NextRequest) {
          }
       );
 
-      if (user.partnerOnboardingSteps < 3) {
+      if (user.partnerOnboardingSteps >= 3) {
          user.partnerOnboardingSteps = 3;
       }
+      else if (user.partnerOnboardingSteps >= 2){
+         user.partnerOnboardingSteps = 2;
+      }
+      else {
+         user.partnerOnboardingSteps = 1
+      }
+      user.partnerStatus = "pending"
       user.mobileNumber = mobileNumber;
       await user.save();
 

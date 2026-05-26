@@ -6,24 +6,26 @@ import { cn } from "@/lib/utils";
 import { PartnerReviewList } from "./PartnerReviewList";
 import { VideoKYCList } from "./VideoKycList";
 import { VehicleReviewList } from "./VehicleReviewList";
+import { PendingPartnerKyc, PendingPartnerType } from "./AdminDashboard";
 
 type TabType = "partnerReviews" | "videoKyc" | "vehicleReviews";
 
 interface TabItem {
   id: TabType;
   label: string;
-  count: number;
+  // partner : PendingPartnerType[],
 }
 
 const tabs: TabItem[] = [
-  { id: "partnerReviews", label: "Pending Partner Reviews", count: 1 },
-  { id: "videoKyc", label: "Pending Video KYC", count: 0 },
-  { id: "vehicleReviews", label: "Pending Vehicle Reviews", count: 0 },
+  { id: "partnerReviews", label: "Pending Partner Reviews" },
+  { id: "videoKyc", label: "Pending Video KYC" },
+  { id: "vehicleReviews", label: "Pending Vehicle Reviews" },
 ];
 interface pendingTabsProps {
-  // name : string
+  partner : PendingPartnerType[]
+  pendingKyc : PendingPartnerKyc[]
 }
-export function PendingTabs({} : pendingTabsProps): React.ReactElement {
+export function PendingTabs({partner,pendingKyc} : pendingTabsProps): React.ReactElement {
   const [activeTab, setActiveTab] = useState<TabType>("partnerReviews");
 
   return (
@@ -43,7 +45,7 @@ export function PendingTabs({} : pendingTabsProps): React.ReactElement {
           >
             {tab.label}
             <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-600">
-              {tab.count}
+              {tab.id == "partnerReviews" ? partner.length : tab.id == "videoKyc" ? pendingKyc.length : 0}
             </span>
           </button>
         ))}
@@ -51,8 +53,8 @@ export function PendingTabs({} : pendingTabsProps): React.ReactElement {
 
       {/* Tab Content */}
       <div className="bg-white rounded-2xl  border border-gray-100 shadow-sm p-6">
-        {activeTab === "partnerReviews" && <PartnerReviewList />}
-        {activeTab === "videoKyc" && <VideoKYCList />}
+        {activeTab === "partnerReviews" && <PartnerReviewList partners={partner} />}
+        {activeTab === "videoKyc" && <VideoKYCList kycList = {pendingKyc} />}
         {activeTab === "vehicleReviews" && <VehicleReviewList />}
       </div>
     </div>

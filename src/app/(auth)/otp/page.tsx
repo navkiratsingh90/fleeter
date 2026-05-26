@@ -76,7 +76,7 @@ export default function OtpPage() {
         "/api/auth/verify-email",
         {
           email,
-          otp,
+          otp : code,
         }
       );
   

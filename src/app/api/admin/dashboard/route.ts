@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
 
     const pendingPartnersReviews = pendingPartnerUsers.map((p) => ({
       _id: p._id,
-      name: p.username,
+      name: p.name,
       email: p.email,
       vehicleType: vehicleTypeMap.get(String(p._id)) || "Not Added",
     }));
