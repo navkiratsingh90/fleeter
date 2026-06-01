@@ -1,22 +1,15 @@
 import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import User from "@/models/user-model";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function GET(
-  req: NextRequest
-) {
+export async function GET() {
   try {
-
     await connectDb();
 
     const session = await auth();
 
-    if (
-      !session ||
-      !session.user?.email ||
-      session.user.role !== "admin"
-    ) {
+    if (!session?.user?.email) {
       return NextResponse.json(
         {
           success: false,
@@ -26,32 +19,34 @@ export async function GET(
       );
     }
 
-    const partners = await User.find({
-      role: "partner",
-      partnerOnboardingSteps: 4,
-      videoKycStatus: {
-        $in: ["pending", "in_progress"],
-      },
-    }).select(
-      "name email phone videoKycStatus videoKycRoomId createdAt"
-    );
+    const user = await User.findOne({
+      email: session.user.email,
+    }).select("-password");
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "User not found",
+        },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json(
       {
         success: true,
-        partners,
+        user,
       },
       { status: 200 }
     );
-
   } catch (error) {
-
-    console.log(error);
+    console.error("GET /api/user/me:", error);
 
     return NextResponse.json(
       {
         success: false,
-        message: "Internal server error",
+        message: "Internal Server Error",
       },
       { status: 500 }
     );

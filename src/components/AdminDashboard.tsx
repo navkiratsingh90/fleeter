@@ -45,6 +45,8 @@ export interface PendingPartnerKyc{
   name : string,
   email : string,
   createdAt? : string
+  videoKycStatus : string,
+  videoKycRoomId : string
 }
 
 export default function AdminPartnersPage() {

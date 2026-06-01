@@ -5,11 +5,32 @@ import { ChevronRight, Video } from "lucide-react";
 import { PendingPartnerKyc } from "./AdminDashboard";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 
 export function VideoKYCList({kycList} : {kycList : PendingPartnerKyc[]}): React.ReactElement {
   const [videoKyc , setVideoKyc] = useState<PendingPartnerKyc[]>(kycList)
   const router=  useRouter()
+  console.log(videoKyc);
+  
+  const handleStartVideoKyc = async (id: any) => {
+    try {
+      const {data} = await axios.get(`api/admin/video-kyc/start/${id}`)
+      window.location.reload()
+    } catch (error) {
+      console.error(error);
+      
+    }
+  }
+  // const handleJoinCall = async (id: any) => {
+  //   try {
+  //     // const {data} = await axios.get(`api/admin/video-kyc/start/${id}`)
+  //     // window.location.reload()
+  //   } catch (error) {
+  //     console.error(error);
+      
+  //   }
+  // }
   if (!videoKyc) return <div>Loading...</div>
   return (
     <div>
@@ -36,14 +57,24 @@ export function VideoKYCList({kycList} : {kycList : PendingPartnerKyc[]}): React
                 <p className="font-dm text-xs text-gray-400">{p.email}</p>
               </div>
             </div>
-            <Button
-              onClick={() => router.push(`/admin/review/partner/${p._id}`)}
+            {
+            
+              p.videoKycStatus == "pending" ? <Button
+              onClick={() => handleStartVideoKyc(p._id)}
               variant="ghost"
               size="sm"
               className="rounded-full text-[#22c55e] hover:text-[#16a34a] hover:bg-[#f0fdf4] gap-1"
             >
               Start Video Kyc <ChevronRight size={14} />
-            </Button>
+            </Button> : p.videoKycStatus == "in_progress" ? <Button
+              onClick={() => router.push(`/video-kyc/${p.videoKycRoomId}`)}
+              variant="ghost"
+              size="sm"
+              className="rounded-full text-[#22c55e] hover:text-[#16a34a] hover:bg-[#f0fdf4] gap-1"
+            >
+              join Call <ChevronRight size={14} />
+            </Button> : ""
+            }
           </div>
         ))}
 
