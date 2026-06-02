@@ -30,7 +30,6 @@ export default function HomePage() {
   return (
     <main className="bg-[#0a0a0a] min-h-screen font-dm">
       <Navbar/>
-      <InitUser />
       {
         session?.user?.role === "partner" ? (
           <PartnerDashboard />

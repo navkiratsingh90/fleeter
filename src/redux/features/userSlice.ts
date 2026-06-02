@@ -28,7 +28,11 @@ export const counterSlice = createSlice({
       state.user = action.payload
     },
     handleUserData : (state, action) => {
-      state.userData = action.payload
+      // console.log(action.payload.user);
+      
+      state.userData = action.payload.user
+      // console.log(state.userData);
+      
     }
   },
 })

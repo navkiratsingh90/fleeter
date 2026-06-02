@@ -4,6 +4,7 @@ import "./globals.css";
 import Provider from "@/components/Provider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import InitUser from "@/InitUser";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -33,7 +34,6 @@ export default function RootLayout({
       className={`${roboto.variable}`}
     >
       <body className={`${roboto.className} bg-[#0a0a0a]  text-white antialiased`}>
-      
         <Provider children={children}/>
 
       </body>

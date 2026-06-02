@@ -11,7 +11,9 @@ const UseGetMe = (enabled : boolean) => {
 	useEffect( () => {
 		if (!enabled) return
 		const getMe = async () => {
-		const {data} = await axios.get('/auth/me')
+		const {data} = await axios.get('/api/auth/me')
+		console.log(data);
+		
 		dispatch(handleUserData(data))
 		}
 		getMe()
