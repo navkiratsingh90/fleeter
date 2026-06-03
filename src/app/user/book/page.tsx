@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import axios from "axios";
 
-type VehicleKey = "Bike" | "Auto" | "Car" | "Loading" | "Truck";
+export type VehicleKey = "Bike" | "Auto" | "Car" | "Loading" | "Truck";
 
 type VehicleCard = {
   key: VehicleKey;
@@ -439,6 +439,11 @@ function RouteField({
 			{/* CONTINUE */}
 			<div className="rounded-[28px] border border-zinc-200 bg-white p-4 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
 			  <button
+			 onClick={() => {
+				router.push(
+				  `/user/search?pickup=${encodeURIComponent(pickup)}&drop=${encodeURIComponent(drop)}&vehicle=${selectedVehicle}&mobile=${mobile}&pickuplat=${pickUpLatitude ?? ""}&pickuplon=${pickUpLongitude ?? ""}&droplat=${dropLatitude ?? ""}&droplon=${dropLongitude ?? ""}`
+				);
+			  }}
 				type="button"
 				className="h-14 w-full rounded-[22px] bg-green-600 text-[16px] font-bold text-white shadow-[0_16px_30px_rgba(0,0,0,0.16)] transition hover:bg-green-600"
 			  >

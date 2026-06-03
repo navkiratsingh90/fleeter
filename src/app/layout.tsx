@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Syne, DM_Sans, Roboto } from "next/font/google";
 import "./globals.css";
+import "leaflet/dist/leaflet.css";
 import Provider from "@/components/Provider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
