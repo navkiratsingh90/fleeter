@@ -62,7 +62,10 @@ export async function GET(req: NextRequest) {
     const vehicleTypeMap = new Map(
       partnerVehicles.map((v) => [String(v.owner), v.type])
     );
-
+    const pendingVehicleReviews = await Vehicle.find({
+      status: "pending",
+      baseFare : {$exists : true}
+    }).populate("owner", "name email");
     const pendingPartnersReviews = pendingPartnerUsers.map((p) => ({
       _id: p._id,
       name: p.name,
@@ -81,6 +84,7 @@ export async function GET(req: NextRequest) {
           totalRejectedPartners,
         },
         pendingPartnersReviews,
+        pendingVehicleReviews
       },
       { status: 200 }
     );

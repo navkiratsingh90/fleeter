@@ -26,6 +26,7 @@ import axios from "axios";
 import { Badge } from "@/components/ui/badge";
 import { StatsCards } from "@/components/StatsCards";
 import { PendingTabs } from "@/components/PendingTabs";
+import { IVehicle } from "@/models/vehicle-model";
 
 interface StatsType {
   totalPartners: number;
@@ -57,7 +58,7 @@ export default function AdminPartnersPage() {
     totalRejectedPartners: 0,
   });
   const [partnersKyc , setPartnerKyc] = useState<PendingPartnerKyc[]>([])
-
+  const [pendingVehicleReviews , setPendingVehicleReviews] = useState<IVehicle[]>([])
   const [pendingPartners, setPendingPartners] = useState<
     PendingPartnerType[]
   >([]);
@@ -73,6 +74,9 @@ export default function AdminPartnersPage() {
       setStatsData(data.stats);
 
       setPendingPartners(data.pendingPartnersReviews);
+      setPendingVehicleReviews(data.pendingVehicleReviews)
+      console.log(data.pendingVehicleReviews , pendingVehicleReviews);
+      
     } catch (error: any) {
       console.log(
         error.response?.data?.message || "Something went wrong"
@@ -119,14 +123,13 @@ export default function AdminPartnersPage() {
       <main className="max-w-7xl mx-auto px-4 py-10 md:py-12">
         <div className="mb-8">
           <Badge className="bg-[#f0fdf4] text-[#16a34a] border border-[#bbf7d0] px-4 py-1.5 rounded-full uppercase tracking-widest text-[11px] font-semibold">
-            Admin Overview
+            Admin Overview 
           </Badge>
 
           <h1 className="font-syne text-3xl md:text-4xl font-extrabold text-gray-900 mt-3">
             Admin Dashboard
           </h1>
         </div>
-
         {/* Stats Cards */}
         <StatsCards
           stats={{
@@ -142,6 +145,7 @@ export default function AdminPartnersPage() {
           <PendingTabs 
           pendingKyc = {partnersKyc}
           partner={pendingPartners}
+          pendingVehicles = {pendingVehicleReviews}
           />
         </div>
       </main>

@@ -7,6 +7,7 @@ import { PartnerReviewList } from "./PartnerReviewList";
 import { VideoKYCList } from "./VideoKycList";
 import { VehicleReviewList } from "./VehicleReviewList";
 import { PendingPartnerKyc, PendingPartnerType } from "./AdminDashboard";
+import { IVehicle } from "@/models/vehicle-model";
 
 type TabType = "partnerReviews" | "videoKyc" | "vehicleReviews";
 
@@ -24,8 +25,9 @@ const tabs: TabItem[] = [
 interface pendingTabsProps {
   partner : PendingPartnerType[]
   pendingKyc : PendingPartnerKyc[]
+  pendingVehicles : IVehicle[]
 }
-export function PendingTabs({partner,pendingKyc} : pendingTabsProps): React.ReactElement {
+export function PendingTabs({partner,pendingKyc , pendingVehicles} : pendingTabsProps): React.ReactElement {
   const [activeTab, setActiveTab] = useState<TabType>("partnerReviews");
 
   return (
@@ -45,7 +47,7 @@ export function PendingTabs({partner,pendingKyc} : pendingTabsProps): React.Reac
           >
             {tab.label}
             <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-600">
-              {tab.id == "partnerReviews" ? partner.length : tab.id == "videoKyc" ? pendingKyc.length : 0}
+              {tab.id == "partnerReviews" ? partner.length : tab.id == "videoKyc" ? pendingKyc.length : tab.id == "vehicleReviews" ? pendingVehicles.length : 0}
             </span>
           </button>
         ))}
@@ -55,7 +57,7 @@ export function PendingTabs({partner,pendingKyc} : pendingTabsProps): React.Reac
       <div className="bg-white rounded-2xl  border border-gray-100 shadow-sm p-6">
         {activeTab === "partnerReviews" && <PartnerReviewList partners={partner} />}
         {activeTab === "videoKyc" && <VideoKYCList kycList = {pendingKyc} />}
-        {activeTab === "vehicleReviews" && <VehicleReviewList />}
+        {activeTab === "vehicleReviews" && <VehicleReviewList vehicleList = {pendingVehicles} />}
       </div>
     </div>
   );
