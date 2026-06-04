@@ -172,13 +172,35 @@ setRoute(routeCoordinates);
       
     }
   }
-  const dragPickUp = (lat :number , lon : number) => {
+  const reverseGeocoding = async (latitude : number , longitude : number) => {
+    try {
+      const { data } = await axios.get(
+        `https://photon.komoot.io/reverse?lat=${latitude}&lon=${longitude}`
+      );
+      if (!data.features.length) return
+      const place = data?.features?.[0]?.properties;
+
+      const address = [place?.name, place?.street, place?.city, place?.state, place?.country]
+        .filter(Boolean)
+        .join(", ");
+        return address
+
+    } catch (error) {
+      console.error(error);
+      
+    }
+  }
+  const dragPickUp = async (lat :number , lon : number) => {
+    const add = await reverseGeocoding(lat,lon)
     setP1([lat,lon])
     if (p2) loadRoute([lat,lon] ,p2)
+      onChange?.(add! , drop)
   }
-  const dragDrop = (lat :number , lon : number) => {
+  const dragDrop = async (lat :number , lon : number) => {
+    const add = await reverseGeocoding(lat,lon)
     setP2([lat,lon])
     if (p1) loadRoute(p1,[lat,lon])
+      onChange?.(pickup,add!)
   }
   useEffect(() => {
     if (!pickup || !drop) return;
@@ -199,70 +221,76 @@ setRoute(routeCoordinates);
   }, [pickup, drop]); 
   if (loading) return <LoadingSpinner/>
   return (
-    <div style={{ width: "100%", height: "500px" }}>
-      <MapContainer
-        center={p1 ?? [0,0]}
-        zoom={13}
-        style={{ width: "100%", height: "100%" }}
-      >
-         <TileLayer
-  attribution='&copy; <a href= "https://carto.com/">"CARTO"</a> contributors'
-   url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
- />
-
-        {p1 && p2 && <FitBounds p1={p1} p2={p2} />}
-
-        {p1 && <Marker 
-        position={p1} 
-        icon={pickupIcon} 
-        draggable
-        eventHandlers={{
-          dragend :e =>  {
-            const m = e.target.getLatLng()
-            dragPickUp(m.lat,m.lng)
-          }
-        }}
-        />}
-        {p2 && <Marker 
-        position={p2}
-         icon={dropIcon}
+    <div style={{ width: "100%", height: "500px" }} className="relative">
+    <MapContainer
+      center={p1 ?? [0, 0]}
+      zoom={13}
+      style={{ width: "100%", height: "100%" }}
+    >
+      <TileLayer
+        attribution='&copy; CARTO contributors'
+        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+      />
+  
+      {p1 && p2 && <FitBounds p1={p1} p2={p2} />}
+  
+      {p1 && (
+        <Marker
+          position={p1}
+          icon={pickupIcon}
           draggable
           eventHandlers={{
-            dragend :e =>  {
-              const m = e.target.getLatLng()
-              dragDrop(m.lat,m.lng)
-            }
+            dragend: (e) => {
+              const m = e.target.getLatLng();
+              dragPickUp(m.lat, m.lng);
+            },
           }}
-          />}
-        {
-          route?.length > 0 && (
-            <>
-              <Polyline positions={route} pathOptions={{color : "#0a0a0a" , weight:4, lineCap : "round" , lineJoin : "round"}}/>
-            </>
-          )
-        }
-      </MapContainer>
-      <div className="absolute top-6 right-4 z-[500] flex items-center gap-2 rounded-full border border-white bg-black px-4 py-2 shadow-lg">
-        <Navigation2
-          size={14}
-          className="text-white"
         />
+      )}
+  
+      {p2 && (
+        <Marker
+          position={p2}
+          icon={dropIcon}
+          draggable
+          eventHandlers={{
+            dragend: (e) => {
+              const m = e.target.getLatLng();
+              dragDrop(m.lat, m.lng);
+            },
+          }}
+        />
+      )}
+  
+      {route?.length > 0 && (
+        <Polyline
+          positions={route}
+          pathOptions={{
+            color: "#0a0a0a",
+            weight: 4,
+            lineCap: "round",
+            lineJoin: "round",
+          }}
+        />
+      )}
+    </MapContainer>
+  
+    {/* Overlay Card */}
+    <div className="absolute bottom-4 left-4 z-[1000] flex items-center gap-2 rounded-full border border-white bg-black px-4 py-2 shadow-lg">
+    <Navigation2 size={14} className="text-white" />
 
-        <span className="text-xs font-bold text-white">
-          {km ? `${km.toFixed(1)} km` : "-- km"}
-        </span>
+    <span className="text-xs font-bold text-white">
+      {km ? `${km.toFixed(1)} km` : "-- km"}
+    </span>
 
-        <span className="h-3 w-px bg-black" />
+    <span className="h-3 w-px bg-white" />
 
-        <span className="text-xs text-white">
-          {km
-            ? `~${Math.max(
-                3,
-                Math.round((km / 25) * 60)
-              )} min`
-            : "-- min"}
-        </span>
-      </div>
-    </div>
+    <span className="text-xs text-white">
+      {km
+        ? `~${Math.max(3, Math.round((km / 25) * 60))} min`
+        : "-- min"}
+    </span>
+  </div>
+  </div>
   );
 }

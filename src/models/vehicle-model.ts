@@ -11,8 +11,7 @@ export interface IVehicle extends Document {
     | "van";
 
   vehicleModel: string;
-  number: string;
-
+  number: string,
   imageUrl: string;
 
   baseFare: number;
@@ -97,12 +96,12 @@ const vehicleSchema = new mongoose.Schema<IVehicle>(
       type: Boolean,
       default: true,
     },
+   
   },
   {
     timestamps: true,
   }
 );
-
 const Vehicle =
   mongoose.models.Vehicle ||
   mongoose.model<IVehicle>("Vehicle", vehicleSchema);
