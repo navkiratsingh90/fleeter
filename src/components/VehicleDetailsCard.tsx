@@ -25,3 +25,8 @@ export function VehicleDetailsCard({ type, registrationNumber, model }: VehicleD
     </Card>
   );
 }
+
+{/* <TileLayer
+  attribution='&copy; <a href= "https://carto.com/">"CARTO"</a> contributors'
+  url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+/> */}

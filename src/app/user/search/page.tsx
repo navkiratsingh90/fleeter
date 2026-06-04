@@ -1,58 +1,42 @@
+// app/user/search/page.tsx
 "use client";
 
 import dynamic from "next/dynamic";
+import { ArrowLeft } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 
 const SearchMap = dynamic(() => import("@/components/SearchMap"), {
   ssr: false,
+  loading: () => <div className="h-full w-full bg-zinc-100" />,
 });
 
-const safeNum = (v: string | null) =>
-  v && !isNaN(Number(v)) ? Number(v) : undefined;
-
-const Page = () => {
+export default function SearchPage() {
   const params = useSearchParams();
 
-  const pickup = params.get("pickup") ?? "";
-  const drop = params.get("drop") ?? "";
-
-  const pickUpLatitude = safeNum(params.get("pickuplat"));
-  const pickUpLongitude = safeNum(params.get("pickuplon"));
-  const dropLatitude = safeNum(params.get("droplat"));
-  const dropLongitude = safeNum(params.get("droplon"));
-
-  const hasCoords = useMemo(() => {
-    return (
-      pickUpLatitude !== undefined &&
-      pickUpLongitude !== undefined
-    );
-  }, [pickUpLatitude, pickUpLongitude]);
+  const [pickUp, setPickUp] = useState(params.get("pickup") ?? "");
+  const [drop, setDrop] = useState(params.get("drop") ?? "");
+  const [km, setKm] = useState<string>("");
 
   return (
-    <div className="min-h-screen bg-zinc-100">
-      <div className="h-[70vh] w-full">
+    <div className="min-h-screen bg-zinc-100 text-zinc-900 overflow-x-hidden">
+      <div className="absolute top-5 left-5 z-50">
+        <button className="w-11 h-11 rounded-full bg-white border border-zinc-200 shadow-md flex items-center justify-center hover:bg-zinc-900 transition-colors">
+          <ArrowLeft size={13} className="text-zinc-700" />
+        </button>
+      </div>
 
-        {hasCoords ? (
-          <SearchMap
-            pickUp={pickup}
-            drop={drop}
-            pickUpLat={pickUpLatitude!}
-            pickUpLng={pickUpLongitude!}
-            dropLat={dropLatitude}
-            dropLng={dropLongitude}
-            onChange={() => {}}
-            onDistance={() => {}}
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-red-500">
-            Missing coordinates
-          </div>
-        )}
-
+      <div className="relative w-full h-[52vh] z-0">
+        <SearchMap
+          pickup={pickUp}
+          drop={drop}
+          onChange={(p, d) => {
+            setPickUp(p);
+            setDrop(d);
+          }}
+          onDistance={setKm}
+        />
       </div>
     </div>
   );
-};
-
-export default Page;
+}

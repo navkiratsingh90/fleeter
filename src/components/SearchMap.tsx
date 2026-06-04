@@ -1,86 +1,268 @@
+// "use client";
+
+// import { MapContainer, TileLayer, useMap } from "react-leaflet";
+// import "leaflet/dist/leaflet.css";
+// import { useEffect, useState } from "react";
+// import axios from "axios";
+
+// interface props {
+//   pickup : string,
+//   drop : string,
+//   onChange : (p:string,d:string) => void,
+//   onDistance : (d:string) => void
+// }
+// function FitBounds({
+//   p1,p2
+// }: {
+//   p1 : [number,number],
+//   p2 : [number,number]
+// }) {
+//   const map = useMap();
+//   map.invalidateSize()
+//   useEffect(() => {
+//     map.fitBounds([p1,p2], {
+//       padding: [72, 72], 
+//       maxZoom : 15,
+//       animate: true,
+//       duration : 1
+//     });
+//   },[p1,p2,map])
+//   return null;
+// }
+
+// export default function SearchMap({pickup , drop, onChange , onDistance} : props) {
+//   console.log("SearchMap rendered");
+//   const [p1,setP1 ] = useState<[number,number] | null>(null)
+//   const [p2,setP2 ] = useState<[number,number] | null>(null)
+//   const geoCoding = async (q:string) : Promise<[number , number] | null> => {
+//     try {
+//       const {data} = await axios.get(`https://photon.komoot.io/api/?q=${encodeURIComponent(q.trim())}&limit=1`)
+//       if (!data.features.length) return null
+//       const [lat,lon] = data.features[0].geometry.coordinates
+//       return [lat,lon]
+//     } catch (error) {
+//       console.error(error);
+//       return null
+//     }
+//   }
+//   useEffect(() => {
+//     if (pickup && drop){
+//       (async () => {
+//         const a = await geoCoding(pickup)
+//         const b = await geoCoding(drop)
+//         if (!a && !b) return
+//         setP1(a)
+//         setP2(b)
+//       })()
+//     }
+    
+//   },[pickup,drop])
+//   useEffect(() => {
+//     console.log(p1, p2);
+//   },[p1,p2])
+//   return (
+//     <div style={{ width: "100%", height: "500px" }}>
+//       <MapContainer
+//         center={p1 ? p1: [0,0]}
+//         zoom={13}
+//         style={{ width: "100%", height: "100%" }}
+//       >
+//        <TileLayer
+//   attribution='&copy; <a href= "https://carto.com/">"CARTO"</a> contributors'
+//   url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+// />
+//     {p1 && p2 && <FitBounds p1={p1} p2={p2} /> }
+//       </MapContainer>
+//     </div>
+//   );
+// }
+
 "use client";
 
-import React, { useEffect } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Polyline,
-  useMap,
-} from "react-leaflet";
+import { MapContainer, Marker, Polyline, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import L from "leaflet";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import L from 'leaflet'
+import { dropIcon, pickupIcon } from "./MapIcons";
+import LoadingSpinner from "./LoadingSpinner";
+import { Navigation2 } from "lucide-react";
+interface Props {
+  pickup: string;
+  drop: string;
+  onChange: (p: string, d: string) => void;
+  onDistance: (d: number) => void;
+}
 
-// fix icons
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  iconUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-});
-
-function Recenter({ center }: { center: [number, number] }) {
+function FitBounds({
+  p1,
+  p2,
+}: {
+  p1: [number, number];
+  p2: [number, number];
+}) {
   const map = useMap();
 
   useEffect(() => {
-    map.setView(center, 13);
-  }, [center, map]);
+    map.invalidateSize();
+
+    map.fitBounds([p1, p2], {
+      padding: [72, 72],
+      maxZoom: 15,
+      animate: true,
+      duration: 1,
+    });
+  }, [map, p1, p2]);
 
   return null;
 }
 
-const SearchMap = ({
-  pickUpLat,
-  pickUpLng,
-  dropLat,
-  dropLng,
-}: any) => {
-  if (pickUpLat == null || pickUpLng == null) {
-    return (
-      <div className="flex h-full items-center justify-center text-red-500">
-        Invalid location
-      </div>
-    );
+export default function SearchMap({
+  pickup,
+  drop,
+  onChange,
+  onDistance,
+}: Props) {
+  const [p1, setP1] = useState<[number, number] | null>(null);
+  const [p2, setP2] = useState<[number, number] | null>(null);
+  const [route,setRoute] = useState<[number,number][]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+  const [km , setKm] = useState<number>(0)
+  const geoCoding = async (
+    q: string
+  ): Promise<[number, number] | null> => {
+    try {
+      const { data } = await axios.get(
+        `https://photon.komoot.io/api/?q=${encodeURIComponent(
+          q.trim()
+        )}&limit=1`
+      );
+
+      if (!data?.features?.length) return null;
+
+      // Photon returns [longitude, latitude]
+      const [lon, lat] = data.features[0].geometry.coordinates;
+
+      return [lat, lon];
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  };
+  const loadRoute = async (p : [number,number] , d : [number,number]) => {
+    try {
+      const {data} = await axios.get(`https://router.project-osrm.org/route/v1/driving/${p[1]},${p[0]};${d[1]},${d[0]}?overview=full&geometries=geojson`)
+      console.log(data);
+      
+      if (!data.routes.length) return
+      const routeCoordinates: [number, number][] =
+  data.routes[0].geometry.coordinates.map(
+    ([lon, lat]: [number, number]) => [lat, lon]
+  );
+
+console.log(routeCoordinates.slice(0, 5));
+
+setRoute(routeCoordinates);
+      const distance = +((data.routes[0].distance)/1000).toFixed(2)
+      setKm(distance)
+      onDistance(distance)
+      setLoading(false)
+    } catch (error) {
+      console.error(error);
+      
+    }
   }
+  const dragPickUp = (lat :number , lon : number) => {
+    setP1([lat,lon])
+    if (p2) loadRoute([lat,lon] ,p2)
+  }
+  const dragDrop = (lat :number , lon : number) => {
+    setP2([lat,lon])
+    if (p1) loadRoute(p1,[lat,lon])
+  }
+  useEffect(() => {
+    if (!pickup || !drop) return;
 
-  const center: [number, number] = [pickUpLat, pickUpLng];
+    (async () => {
+      const a = await geoCoding(pickup);
+      const b = await geoCoding(drop);
 
-  const route =
-    dropLat != null && dropLng != null
-      ? [
-          [pickUpLat, pickUpLng],
-          [dropLat, dropLng],
-        ]
-      : [];
+      console.log("Pickup:", a);
+      console.log("Drop:", b);
 
+      if (!a || !b) return;
+      loadRoute(a,b)
+      setP1(a);
+      setP2(b);
+    })();
+    setLoading(false)
+  }, [pickup, drop]); 
+  if (loading) return <LoadingSpinner/>
   return (
-    <div className="h-full w-full">
+    <div style={{ width: "100%", height: "500px" }}>
       <MapContainer
-        center={center}
-        zoom={14}
-        className="h-full w-full"
+        center={p1 ?? [0,0]}
+        zoom={13}
+        style={{ width: "100%", height: "100%" }}
       >
-        <TileLayer
-          attribution="&copy; CARTO"
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+         <TileLayer
+  attribution='&copy; <a href= "https://carto.com/">"CARTO"</a> contributors'
+   url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+ />
+
+        {p1 && p2 && <FitBounds p1={p1} p2={p2} />}
+
+        {p1 && <Marker 
+        position={p1} 
+        icon={pickupIcon} 
+        draggable
+        eventHandlers={{
+          dragend :e =>  {
+            const m = e.target.getLatLng()
+            dragPickUp(m.lat,m.lng)
+          }
+        }}
+        />}
+        {p2 && <Marker 
+        position={p2}
+         icon={dropIcon}
+          draggable
+          eventHandlers={{
+            dragend :e =>  {
+              const m = e.target.getLatLng()
+              dragDrop(m.lat,m.lng)
+            }
+          }}
+          />}
+        {
+          route?.length > 0 && (
+            <>
+              <Polyline positions={route} pathOptions={{color : "#0a0a0a" , weight:4, lineCap : "round" , lineJoin : "round"}}/>
+            </>
+          )
+        }
+      </MapContainer>
+      <div className="absolute top-6 right-4 z-[500] flex items-center gap-2 rounded-full border border-white bg-black px-4 py-2 shadow-lg">
+        <Navigation2
+          size={14}
+          className="text-white"
         />
 
-        <Recenter center={center} />
+        <span className="text-xs font-bold text-white">
+          {km ? `${km.toFixed(1)} km` : "-- km"}
+        </span>
 
-        <Marker position={center} />
+        <span className="h-3 w-px bg-black" />
 
-        {route.length === 2 && (
-          <>
-            <Marker position={route[1] as [number, number]} />
-            <Polyline positions={route as any} />
-          </>
-        )}
-      </MapContainer>
+        <span className="text-xs text-white">
+          {km
+            ? `~${Math.max(
+                3,
+                Math.round((km / 25) * 60)
+              )} min`
+            : "-- min"}
+        </span>
+      </div>
     </div>
   );
-};
-
-export default SearchMap;
+}
