@@ -32,6 +32,35 @@ type LocationSuggestion = {
   lng?: number;
 };
 
+const GEO_API_KEY = process.env.NEXT_PUBLIC_GEOAPIFY_KEY;
+
+// ✅ GEOAPIFY AUTOCOMPLETE
+const getCurrentAddress = async (q: string) => {
+  try {
+    const { data } = await axios.get(
+      `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(q.trim())}&apiKey=${process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY}`,
+
+    );
+    return data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+// ✅ GEOAPIFY REVERSE GEOCODING
+const getReverseAddress = async (lat: number, lon: number) => {
+  try {
+    const { data } = await axios.get(
+      `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lon}&apiKey=${process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY}`,
+    );
+    return data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
 const vehicles: VehicleCard[] = [
   { key: "Bike", label: "Bike", subtitle: "Quick & affordable", icon: <Bike className="h-5 w-5" /> },
   { key: "Auto", label: "Auto", subtitle: "Everyday rides", icon: <CarFront className="h-5 w-5" /> },
@@ -62,7 +91,9 @@ function SectionCard({
       <div className="border-b border-zinc-100 px-4 py-4 sm:px-5">
         <div className="flex items-center gap-3">
           <StepBadge step={step} />
-          <h2 className="text-[13px] font-bold tracking-[0.2em] text-zinc-500">{title}</h2>
+          <h2 className="text-[13px] font-bold tracking-[0.2em] text-zinc-500">
+            {title}
+          </h2>
         </div>
       </div>
       <div className="px-4 py-4 sm:px-5 sm:py-5">{children}</div>
@@ -100,8 +131,15 @@ function VehicleTile({
       </div>
 
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[15px] font-bold leading-tight">{vehicle.label}</div>
-        <div className={cn("mt-0.5 truncate text-[12px] leading-tight", active ? "text-white/70" : "text-zinc-400")}>
+        <div className="truncate text-[15px] font-bold leading-tight">
+          {vehicle.label}
+        </div>
+        <div
+          className={cn(
+            "mt-0.5 truncate text-[12px] leading-tight",
+            active ? "text-white/70" : "text-zinc-400"
+          )}
+        >
           {vehicle.subtitle}
         </div>
       </div>
@@ -132,7 +170,7 @@ function GreenInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="h-auto border-0 bg-transparent p-0 text-[15px] font-medium text-zinc-900 shadow-none outline-none placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0"
+        className="h-auto border-0 bg-transparent p-0 text-[15px] font-medium text-zinc-900 shadow-none outline-none placeholder:text-zinc-400 focus-visible:ring-0"
       />
     </div>
   );
@@ -169,13 +207,13 @@ function RouteField({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="h-12 flex-1 border-0 bg-emerald-50/50 px-4 text-[14px] font-medium text-zinc-900 shadow-none outline-none placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="h-12 flex-1 border-0 bg-emerald-50/50 px-4 text-[14px] font-medium text-zinc-900 shadow-none outline-none placeholder:text-zinc-400"
         />
 
         <button
           type="button"
           onClick={onClick}
-          className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-emerald-50 text-emerald-700 transition hover:bg-emerald-100"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
         >
           {action}
         </button>
@@ -184,7 +222,6 @@ function RouteField({
   );
 }
 
-// ✅ Scrollable suggestion list – disappears immediately on click
 function SuggestionList({
   suggestions,
   onSelect,
@@ -195,19 +232,18 @@ function SuggestionList({
   if (!suggestions.length) return null;
 
   return (
-    <div className="max-h-64 overflow-y-auto rounded-xl border border-zinc-200 bg-white shadow-sm [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-zinc-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-300">
+    <div className="max-h-64 overflow-y-auto rounded-xl border border-zinc-200 bg-white shadow-sm">
       {suggestions.map((location, i) => (
         <button
-          key={`${location.title}-${i}`}
+          key={i}
           type="button"
-          onMouseDown={(e) => e.preventDefault()}
           onClick={() => onSelect(location)}
-          className="flex w-full flex-col gap-1 border-b border-zinc-100 px-4 py-3 text-left transition last:border-b-0 hover:bg-emerald-50/70"
+          className="flex w-full flex-col gap-1 border-b border-zinc-100 px-4 py-3 text-left hover:bg-emerald-50"
         >
-          <div className="truncate text-[14px] font-semibold text-zinc-900">
+          <div className="text-[14px] font-semibold text-zinc-900">
             {location.title}
           </div>
-          <div className="truncate text-[12px] text-zinc-500">
+          <div className="text-[12px] text-zinc-500">
             {location.subtitle}
           </div>
         </button>
@@ -220,12 +256,13 @@ export default function BookRidePage() {
   const router = useRouter();
 
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleKey>("Bike");
+
   const [mobile, setMobile] = useState("1213456789");
 
   const [pickup, setPickup] = useState("");
-  const [pickUpSuggestions, setPickUpSuggestions] = useState<LocationSuggestion[]>([]);
-
   const [drop, setDrop] = useState("");
+
+  const [pickUpSuggestions, setPickUpSuggestions] = useState<LocationSuggestion[]>([]);
   const [dropSuggestions, setDropSuggestions] = useState<LocationSuggestion[]>([]);
 
   const [pickUpLatitude, setPickUpLatitude] = useState<number>();
@@ -234,215 +271,154 @@ export default function BookRidePage() {
   const [dropLatitude, setDropLatitude] = useState<number>();
   const [dropLongitude, setDropLongitude] = useState<number>();
 
-  const getCurrentAddress = async (q: string) => {
-    try {
-      const { data } = await axios.get(
-        `https://photon.komoot.io/api/?q=${encodeURIComponent(q.trim())}&limit=10&lang=en`
-      );
-      return data;
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
+  const formatLocation = (feature: any): LocationSuggestion => {
+    const p = feature?.properties ?? {};
+    return {
+      title: p.address_line1 || p.name || "Unknown",
+      subtitle: [p.address_line2, p.city, p.country].filter(Boolean).join(", "),
+      country: p.country,
+      lat: p.lat,
+      lng: p.lon,
+    };
   };
 
   const getCurrentLocation = () => {
     if (!navigator.geolocation) return;
 
-    navigator.geolocation.getCurrentPosition(async (position) => {
-      const { latitude, longitude } = position.coords;
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const { latitude, longitude } = pos.coords;
 
-      try {
-        const { data } = await axios.get(
-          `https://photon.komoot.io/reverse?lat=${latitude}&lon=${longitude}`
-        );
+      const data = await getReverseAddress(latitude, longitude);
+      const place = data?.features?.[0]?.properties;
 
-        const place = data?.features?.[0]?.properties;
+      const address = [
+        place?.address_line1,
+        place?.city,
+        place?.country,
+      ]
+        .filter(Boolean)
+        .join(", ");
 
-        const address = [place?.name, place?.street, place?.city, place?.state, place?.country]
-          .filter(Boolean)
-          .join(", ");
-
-        setPickup(address);
-        setPickUpLatitude(latitude);
-        setPickUpLongitude(longitude);
-        setPickUpSuggestions([]);
-      } catch (error) {
-        console.error(error);
-      }
+      setPickup(address);
+      setPickUpLatitude(latitude);
+      setPickUpLongitude(longitude);
+      setPickUpSuggestions([]);
     });
   };
 
-  const formatLocation = (feature: any): LocationSuggestion => {
-    const p = feature?.properties ?? {};
-    const coords = feature?.geometry?.coordinates ?? [];
-
-    return {
-      title: p?.name || p?.city || p?.state || p?.country || "Unknown Place",
-      subtitle: [p?.street, p?.city, p?.state, p?.country, p?.postcode].filter(Boolean).join(", "),
-      country: p?.country || "",
-      lat: typeof coords?.[1] === "number" ? coords[1] : undefined,
-      lng: typeof coords?.[0] === "number" ? coords[0] : undefined,
-    };
-  };
-
   useEffect(() => {
-    if (!pickup.trim()) {
-      setPickUpSuggestions([]);
-      return;
-    }
+    if (!pickup) return setPickUpSuggestions([]);
 
-    const timer = setTimeout(async () => {
+    const t = setTimeout(async () => {
       const data = await getCurrentAddress(pickup);
 
-      if (data?.features?.length) {
-        const formatted = data.features
-          .filter((f: any) => f?.geometry?.coordinates)
-          .map(formatLocation);
+      const list =
+        data?.features?.map(formatLocation) || [];
 
-        setPickUpSuggestions(formatted);
-      } else {
-        setPickUpSuggestions([]);
-      }
-    }, 500);
+      setPickUpSuggestions(list);
+    }, 400);
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(t);
   }, [pickup]);
 
   useEffect(() => {
-    if (!drop.trim()) {
-      setDropSuggestions([]);
-      return;
-    }
+    if (!drop) return setDropSuggestions([]);
 
-    const timer = setTimeout(async () => {
+    const t = setTimeout(async () => {
       const data = await getCurrentAddress(drop);
 
-      if (data?.features?.length) {
-        const formatted = data.features
-          .filter((f: any) => f?.geometry?.coordinates)
-          .map(formatLocation);
+      const list =
+        data?.features?.map(formatLocation) || [];
 
-        setDropSuggestions(formatted);
-      } else {
-        setDropSuggestions([]);
-      }
-    }, 500);
+      setDropSuggestions(list);
+    }, 400);
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(t);
   }, [drop]);
 
-  const handleSelectPickup = (location: LocationSuggestion) => {
-    setPickUpSuggestions([]);     // ✅ immediately disappear
-    setPickup(location.subtitle || location.title);
-    setPickUpLatitude(location.lat);
-    setPickUpLongitude(location.lng);
-  };
-
-  const handleSelectDrop = (location: LocationSuggestion) => {
-    setDropSuggestions([]);       // ✅ immediately disappear
-    setDrop(location.subtitle || location.title);
-    setDropLatitude(location.lat);
-    setDropLongitude(location.lng);
-  };
-
   return (
-    <div className="min-h-screen bg-white font-dm text-zinc-900">
-      <div className="mx-auto flex min-h-screen w-full max-w-[560px] flex-col px-4 pb-2 pt-6 sm:px-6">
-        <header className="mb-6 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="grid h-12 w-12 place-items-center rounded-2xl border border-zinc-200 bg-white shadow-[0_8px_20px_rgba(0,0,0,0.05)] transition hover:bg-zinc-50"
-            >
-              <ArrowLeft className="h-5 w-5 text-zinc-700" />
-            </button>
+    <div className="min-h-screen bg-white text-zinc-900">
+      <div className="mx-auto max-w-[560px] px-4 py-6 space-y-4">
 
-            <div>
-              <h1 className="font-syne text-[23px] font-bold leading-tight text-zinc-950 sm:text-[25px]">
-                Book a Ride
-              </h1>
-              <p className="mt-0.5 text-[13px] leading-tight text-zinc-400">
-                Fill in the details below
-              </p>
-            </div>
+        {/* Vehicle */}
+        <SectionCard title="CHOOSE VEHICLE" step={1}>
+          <div className="grid grid-cols-2 gap-3">
+            {vehicles.map((v) => (
+              <VehicleTile
+                key={v.key}
+                vehicle={v}
+                active={selectedVehicle === v.key}
+                onClick={() => setSelectedVehicle(v.key)}
+              />
+            ))}
           </div>
+        </SectionCard>
 
-          <div className="flex items-center gap-2 pr-1">
-            <span className="h-[8px] w-[20px] rounded-full bg-green-600" />
-            <span className="h-[8px] w-[20px] rounded-full bg-green-600" />
-            <span className="h-[8px] w-[20px] rounded-full bg-green-600" />
-            <span className="h-[8px] w-[20px] rounded-full bg-green-600" />
-          </div>
-        </header>
+        {/* Mobile */}
+        <SectionCard title="MOBILE" step={2}>
+          <GreenInput
+            value={mobile}
+            onChange={setMobile}
+            placeholder="Enter mobile"
+            icon={<PhoneCall className="h-4 w-4" />}
+          />
+        </SectionCard>
 
-        <main className="flex-1 space-y-2">
-          <SectionCard title="CHOOSE VEHICLE" step={1}>
-            <div className="grid grid-cols-2 gap-3">
-              {vehicles.map((vehicle) => (
-                <VehicleTile
-                  key={vehicle.key}
-                  vehicle={vehicle}
-                  active={selectedVehicle === vehicle.key}
-                  onClick={() => setSelectedVehicle(vehicle.key)}
-                />
-              ))}
-            </div>
-          </SectionCard>
+        {/* Route */}
+        <SectionCard title="ROUTE" step={3}>
+          <div className="space-y-3">
 
-          <SectionCard title="MOBILE" step={2}>
-            <GreenInput
-              value={mobile}
-              onChange={setMobile}
-              placeholder="Enter mobile number"
-              icon={<PhoneCall className="h-4.5 w-4.5" />}
-              type="tel"
+            <RouteField
+              label="Pickup"
+              value={pickup}
+              onChange={setPickup}
+              placeholder="Pickup location"
+              action={<LocateFixed className="h-4 w-4" />}
+              onClick={getCurrentLocation}
             />
-          </SectionCard>
-
-          <SectionCard title="ROUTE" step={3}>
-            <div className="space-y-3">
-              <div className="space-y-2">
-                <RouteField
-                  label="Pickup"
-                  value={pickup}
-                  onClick={getCurrentLocation}
-                  onChange={setPickup}
-                  placeholder="Enter pickup location"
-                  action={<LocateFixed className="h-4.5 w-4.5" />}
-                />
-                <SuggestionList suggestions={pickUpSuggestions} onSelect={handleSelectPickup} />
-              </div>
-
-              <div className="space-y-2">
-                <RouteField
-                  label="Drop"
-                  value={drop}
-                  onClick={() => {}}
-                  onChange={setDrop}
-                  placeholder="Enter destination"
-                  action={<Send className="h-4.5 w-4.5 -rotate-45" />}
-                />
-                <SuggestionList suggestions={dropSuggestions} onSelect={handleSelectDrop} />
-              </div>
-            </div>
-          </SectionCard>
-
-          <div className="rounded-[28px] border border-zinc-200 bg-white p-4 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
-            <button
-              onClick={() => {
-                router.push(
-                  `/user/search?pickup=${encodeURIComponent(pickup)}&drop=${encodeURIComponent(drop)}&vehicle=${selectedVehicle}&mobile=${mobile}&pickuplat=${pickUpLatitude ?? ""}&pickuplon=${pickUpLongitude ?? ""}&droplat=${dropLatitude ?? ""}&droplon=${dropLongitude ?? ""}`
-                );
+            <SuggestionList
+              suggestions={pickUpSuggestions}
+              onSelect={(loc) => {
+                setPickup(loc.subtitle);
+                setPickUpLatitude(loc.lat);
+                setPickUpLongitude(loc.lng);
+                setPickUpSuggestions([]);
               }}
-              type="button"
-              className="h-14 w-full rounded-[22px] bg-green-600 text-[16px] font-bold text-white shadow-[0_16px_30px_rgba(0,0,0,0.16)] transition hover:bg-green-600"
-            >
-              Continue
-            </button>
+            />
+
+            <RouteField
+              label="Drop"
+              value={drop}
+              onChange={setDrop}
+              placeholder="Drop location"
+              action={<Send className="h-4 w-4 -rotate-45" />}
+              onClick={() => {}}
+            />
+            <SuggestionList
+              suggestions={dropSuggestions}
+              onSelect={(loc) => {
+                setDrop(loc.subtitle);
+                setDropLatitude(loc.lat);
+                setDropLongitude(loc.lng);
+                setDropSuggestions([]);
+              }}
+            />
+
           </div>
-        </main>
+        </SectionCard>
+
+        {/* Continue */}
+        <button
+          onClick={() =>
+            router.push(
+              `/user/search?pickup=${pickup}&drop=${drop}&vehicle=${selectedVehicle}&mobile=${mobile}&pickuplat=${pickUpLatitude ?? ""}&pickuplon=${pickUpLongitude ?? ""}&droplat=${dropLatitude ?? ""}&droplon=${dropLongitude ?? ""}`
+            )
+          }
+          className="w-full h-14 rounded-2xl bg-green-600 text-white font-bold shadow-lg hover:bg-green-700"
+        >
+          Continue
+        </button>
+
       </div>
     </div>
   );
