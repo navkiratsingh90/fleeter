@@ -68,15 +68,13 @@ export default function SearchMap({
   ): Promise<[number, number] | null> => {
     try {
       const { data } = await axios.get(
-        `https://photon.komoot.io/api/?q=${encodeURIComponent(
-          q.trim()
-        )}&limit=1`
+        `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(q.trim())}&apiKey=${process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY}`,
       );
-
+  
       if (!data?.features?.length) return null;
-
-      // Photon returns [longitude, latitude]
-      const [lon, lat] = data.features[0].geometry.coordinates;
+  
+      const { lat, lon } = data.features[0].properties;
+  
       return [lat, lon];
     } catch (error) {
       console.error(error);
@@ -113,9 +111,8 @@ export default function SearchMap({
   ): Promise<string | undefined> => {
     try {
       const { data } = await axios.get(
-        `https://photon.komoot.io/reverse?lat=${latitude}&lon=${longitude}`
+        `https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&apiKey=${process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY}`
       );
-
       if (!data?.features?.length) return;
 
       const place = data.features[0].properties;

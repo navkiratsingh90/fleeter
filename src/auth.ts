@@ -107,25 +107,24 @@ export const {
 
     // ================= JWT CALLBACK =================
     async jwt({ token, user }) {
+  await connectDb();
 
-      await connectDb();
+  const dbUser = await User.findOne({
+    email: token.email,
+  });
 
-      // Find current DB user
-      const dbUser = await User.findOne({
-        email: token.email,
-      });
+  console.log("DB ROLE:", dbUser?.role);
+  console.log("TOKEN ROLE BEFORE:", token.role);
 
-      if (dbUser) {
-        token.id = dbUser._id.toString();
-        token.role = dbUser.role;
-      }
+  if (dbUser) {
+    token.id = dbUser._id.toString();
+    token.role = dbUser.role;
+  }
 
-      if (user) {
-        token.id = user.id;
-      }
+  console.log("TOKEN ROLE AFTER:", token.role);
 
-      return token;
-    },
+  return token;
+},
 
     // ================= SESSION CALLBACK =================
     async session({ session, token }) {

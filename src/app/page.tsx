@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import GeoUpdater from "@/components/GeoUpdater";
 import HeroSection from "@/components/HeroSection";
 import Home from "@/components/Home";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import Navbar from "@/components/Navbar";
 import PartnerDashboard from "@/components/PartnerDashboard";
 import VehicleSlider from "@/components/VehicleSlider";
@@ -34,6 +35,7 @@ export default function HomePage() {
 	// 	const socket = getSocket()
 	// 	socket.emit("identity",  userId : userData?._id)
 	// },[userData])
+  // if (userData) return <LoadingSpinner/>
   return (
     <main className="bg-[#0a0a0a] min-h-screen font-dm">
       <Navbar/>

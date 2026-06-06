@@ -47,7 +47,7 @@ export default function SearchPage() {
   const [pickUp, setPickUp] = useState(params.get("pickup") ?? "");
   const [drop, setDrop] = useState(params.get("drop") ?? "");
   const [km, setKm] = useState<number>(0);
-
+  const mobile = params.get("mobile" ?? "")
   const [pickUpLat, setPickUpLat] = useState<number | null>(() => {
     const v = params.get("pickuplat");
     return v ? Number(v) : null;
@@ -266,13 +266,15 @@ export default function SearchPage() {
             drop,
             vehicle: item.type,
             driverId: item.owner ?? "",
+            vehicleId: item._id ?? "",
             fare: String(item.baseFare + item.pricePerKm * km),
+            mobile: mobile ?? "",
             pickUpLat: String(pickUpLat),
             pickUpLon: String(pickUpLon),
             dropLat: String(dropLat),
             dropLon: String(dropLon),
           });
-
+          
           router.push(`/user/checkout?${url.toString()}`);
         }}
       />

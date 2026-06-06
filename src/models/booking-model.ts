@@ -6,8 +6,9 @@ export type PaymentStatus =
   | "failed"
   | "paid";
 
-export type BookingStatus = 
-	"requested"
+export type BookingStatus =
+  | "idle"
+  | "requested"
   | "awaiting_payment"
   | "confirmed"
   | "started"
@@ -20,6 +21,9 @@ export interface IBooking extends Document {
   user: Types.ObjectId;
   driver: Types.ObjectId;
   vehicle: Types.ObjectId;
+
+  pickUpAddress: string;
+  dropAddress: string;
 
   pickupLocation: {
     type: "Point";
@@ -38,7 +42,7 @@ export interface IBooking extends Document {
 
   bookingStatus: BookingStatus;
   paymentStatus: PaymentStatus;
-
+  paymentDeadline : Date
   adminCommission: number;
   partnerAmount: number;
 
@@ -47,9 +51,8 @@ export interface IBooking extends Document {
 
   pickupOtpExpiresAt?: Date;
   dropOtpExpiresAt?: Date;
-
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt : Date,
+  updatedAt : Date
 }
 
 const bookingSchema = new mongoose.Schema<IBooking>(
@@ -70,6 +73,18 @@ const bookingSchema = new mongoose.Schema<IBooking>(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Vehicle",
       required: true,
+    },
+
+    pickUpAddress: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    dropAddress: {
+      type: String,
+      required: true,
+      trim: true,
     },
 
     pickupLocation: {
@@ -105,19 +120,18 @@ const bookingSchema = new mongoose.Schema<IBooking>(
     driverMobileNumber: {
       type: String,
       required: true,
-      trim: true,
     },
 
     userMobileNumber: {
       type: String,
       required: true,
-      trim: true,
     },
 
     bookingStatus: {
       type: String,
       enum: [
-		"requested",
+        "idle",
+        "requested",
         "awaiting_payment",
         "confirmed",
         "started",
@@ -134,41 +148,38 @@ const bookingSchema = new mongoose.Schema<IBooking>(
       enum: ["pending", "cash", "failed", "paid"],
       default: "pending",
     },
-
+    paymentDeadline: {
+      type : Date,
+    },
     adminCommission: {
       type: Number,
       default: 0,
-      min: 0,
     },
 
     partnerAmount: {
       type: Number,
       default: 0,
-      min: 0,
     },
 
+    // OTP will be generated later
     pickupOtp: {
       type: String,
-      required: true,
+      default: "",
     },
 
     dropOtp: {
       type: String,
-      required: true,
+      default: "",
     },
 
-    pickupOtpExpiresAt: {
-      type: Date,
-    },
-
-    dropOtpExpiresAt: {
-      type: Date,
-    },
+    pickupOtpExpiresAt: Date,
+    dropOtpExpiresAt: Date,
   },
   {
     timestamps: true,
   }
 );
+
 
 const Booking =
   mongoose.models.Booking ||
