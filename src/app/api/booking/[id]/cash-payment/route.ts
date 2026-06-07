@@ -2,11 +2,10 @@ import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking-model";
 import User from "@/models/user-model";
-import axios from "axios";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
-  req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -24,21 +23,21 @@ export async function PATCH(
       );
     }
 
-    const partner = await User.findOne({
+    const { id } = await params;
+
+    const user = await User.findOne({
       email: session.user.email,
     });
 
-    if (!partner) {
+    if (!user) {
       return NextResponse.json(
         {
           success: false,
-          message: "Partner not found",
+          message: "User not found",
         },
         { status: 404 }
       );
     }
-
-    const { id } = await params;
 
     const booking = await Booking.findById(id);
 
@@ -52,7 +51,7 @@ export async function PATCH(
       );
     }
 
-    if (String(booking.driver) !== String(partner._id)) {
+    if (String(booking.user) !== String(user._id)) {
       return NextResponse.json(
         {
           success: false,
@@ -62,27 +61,28 @@ export async function PATCH(
       );
     }
 
-    if (booking.bookingStatus !== "requested") {
+    if (
+      booking.bookingStatus !== "awaiting_payment"
+    ) {
       return NextResponse.json(
         {
           success: false,
-          message: "Booking already processed",
+          message:
+            "Booking is not awaiting payment",
         },
         { status: 400 }
       );
     }
 
-    booking.bookingStatus = "awaiting_payment";
-	booking.paymentDeadline = new Date(Date.now() + (5*60*1000))
+    booking.paymentMethod = "cash";
+    booking.paymentStatus = "pending";
+    booking.bookingStatus = "confirmed";
+
     await booking.save();
-    await axios.post(`${process.env.NEXT_PUBLIC_SOCKET_SERVER_URL}/emit`, {
-      event : "accept-booking",
-      userId : booking.user,
-      data : booking.bookingStatus
-    })
+
     return NextResponse.json({
       success: true,
-      message: "Ride accepted successfully",
+      message: "Cash payment selected",
       booking,
     });
   } catch (error) {

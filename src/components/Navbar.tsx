@@ -28,7 +28,7 @@ const Navbar = () => {
     if (role === "partner") {
       return [
         { label: "Dashboard", href: "/partner/dashboard" },
-        { label: "Bookings", href: "/partner/bookings" },
+        { label: "Bookings", href: "/partner/booking" },
         { label: "Pending Bookings", href: "/partner/pending-bookings" },
         { label: "Completed Bookings", href: "/partner/bookings/completed" },
       ];
@@ -37,7 +37,7 @@ const Navbar = () => {
     if (role === "admin") {
       return [
         { label: "Dashboard", href: "/admin/dashboard" },
-        { label: "Bookings", href: "/admin/bookings" },
+        { label: "Bookings", href: "/user/bookings" },
         { label: "Pending Bookings", href: "/admin/bookings/pending" },
         { label: "Users", href: "/admin/users" },
       ];

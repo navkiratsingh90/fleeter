@@ -35,8 +35,10 @@ export default function RootLayout({
       className={`${roboto.variable}`}
     >
       <body className={`${roboto.className} bg-[#0a0a0a]  text-white antialiased`}>
-        <Provider children={children}/>
-
+      <Provider>
+        
+          {children}
+      </Provider>
       </body>
     </html>
   );

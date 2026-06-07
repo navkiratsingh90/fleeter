@@ -2,11 +2,12 @@ import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking-model";
 import User from "@/models/user-model";
+import axios from "axios";
 import { NextResponse } from "next/server";
 
-export async function PATCH(
+export async function DELETE(
   req: Request,
-  { params }: { params: Promise<{ bookingId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDb();
@@ -37,9 +38,9 @@ export async function PATCH(
       );
     }
 
-    const { bookingId } = await params;
-
-    const booking = await Booking.findById(bookingId);
+    const { id } = await params;
+    
+    const booking = await Booking.findById(id);
 
     if (!booking) {
       return NextResponse.json(
@@ -70,10 +71,12 @@ export async function PATCH(
         { status: 400 }
       );
     }
-
-    booking.bookingStatus = "rejected";
-
-    await booking.save();
+    await axios.post(`${process.env.NEXT_PUBLIC_SOCKET_SERVER_URL}/emit`, {
+      event : "reject-booking",
+      userId : booking.user,
+      data : "idle"
+    })
+    await booking.deleteOne()
 
     return NextResponse.json({
       success: true,

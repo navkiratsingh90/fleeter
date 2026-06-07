@@ -2,13 +2,9 @@ import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking-model";
 import User from "@/models/user-model";
-import axios from "axios";
 import { NextResponse } from "next/server";
 
-export async function PATCH(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET() {
   try {
     await connectDb();
 
@@ -38,52 +34,27 @@ export async function PATCH(
       );
     }
 
-    const { id } = await params;
-
-    const booking = await Booking.findById(id);
-
-    if (!booking) {
+    if (partner.role !== "partner") {
       return NextResponse.json(
         {
           success: false,
-          message: "Booking not found",
-        },
-        { status: 404 }
-      );
-    }
-
-    if (String(booking.driver) !== String(partner._id)) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Not allowed",
+          message: "Access denied",
         },
         { status: 403 }
       );
     }
 
-    if (booking.bookingStatus !== "requested") {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Booking already processed",
-        },
-        { status: 400 }
-      );
-    }
-
-    booking.bookingStatus = "awaiting_payment";
-	booking.paymentDeadline = new Date(Date.now() + (5*60*1000))
-    await booking.save();
-    await axios.post(`${process.env.NEXT_PUBLIC_SOCKET_SERVER_URL}/emit`, {
-      event : "accept-booking",
-      userId : booking.user,
-      data : booking.bookingStatus
+    const bookings = await Booking.find({
+      driver: partner._id,
     })
+      .populate("user", "name email mobileNumber")
+      .populate("vehicle")
+      .sort({ createdAt: -1 });
+
     return NextResponse.json({
       success: true,
-      message: "Ride accepted successfully",
-      booking,
+      count: bookings.length,
+      bookings,
     });
   } catch (error) {
     console.error(error);

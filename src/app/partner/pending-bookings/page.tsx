@@ -1,5 +1,6 @@
 "use client";
 
+import { getSocket } from "@/lib/socket";
 import { IBooking } from "@/models/booking-model";
 import axios from "axios";
 import { MapPin, Navigation, Clock, IndianRupee } from "lucide-react";
@@ -23,7 +24,8 @@ useEffect(() => {
       const { data } = await axios.get(
         "/api/partner/booking/pending"
       );
-
+      console.log(data);
+      
       if (data.success) {
         setBookings(data.bookings);
       }
@@ -38,7 +40,7 @@ useEffect(() => {
 }, []);
 const handleReject = async (bookingId: string) => {
 	try {
-	  const { data } = await axios.patch(
+	  const { data } = await axios.delete(
 		`/api/partner/booking/${bookingId}/reject`
 	  );
 	  console.log(data);
@@ -85,7 +87,15 @@ const handleReject = async (bookingId: string) => {
 	  );
 	}
   };
-
+  useEffect(() => {
+    const socket = getSocket()
+    socket.on("new-booking", (data) => {
+     setBookings((prev) => ([...prev,data]))
+    })
+    return () => {
+     socket.off("new-booking")
+    }
+   },[])
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-[#f8fffb] to-[#f0fdf4]">
       {/* Header */}
@@ -180,13 +190,13 @@ const handleReject = async (bookingId: string) => {
                       {/* Action Buttons */}
                       <div className="flex flex-col sm:flex-row lg:flex-col gap-3">
                         <button
-                          onClick={() => handleReject(String(request._id))}
+                          onClick={() => handleReject(request._id.toString())}
                           className="flex-1 px-6 h-11 rounded-2xl border-2 border-gray-200 text-gray-900 font-bold text-sm transition-all hover:border-gray-300 hover:bg-gray-50 active:bg-gray-100"
                         >
                           Reject
                         </button>
                         <button
-                          onClick={() => handleAccept(String(request._id))}
+                          onClick={() => handleAccept(request._id.toString())}
                           className="flex-1 px-6 h-11 rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] text-white font-bold text-sm transition-all shadow-[0_4px_12px_rgba(34,197,94,0.2)] hover:shadow-[0_6px_16px_rgba(34,197,94,0.3)] active:scale-95"
                         >
                           Accept Ride
