@@ -537,7 +537,7 @@ export default function CheckoutPage() {
         </p>
 
         <button
-          onClick={() => router.push("/user/track-ride")}
+          onClick={() => router.push(`/user/track-ride/${booking?._id}`)}
           className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-gray-900 px-8 py-4 text-sm font-bold text-white shadow-[0_10px_24px_rgba(0,0,0,0.12)] transition hover:bg-gray-800 active:scale-95"
         >
           Track Your Ride
