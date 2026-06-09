@@ -1,5 +1,6 @@
 "use client";
 
+import { getSocket } from "@/lib/socket";
 import axios from "axios";
 import { MessageCircle, Send, Sparkles, Loader2 } from "lucide-react";
 import React, { useEffect, useState, useRef } from "react";
@@ -107,15 +108,21 @@ export function RideChat({ bookingId, currentRole }: RideChatProps) {
       });
 
       if (data.success) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: data.message?._id || Date.now().toString(),
-            sender: apiSender,
-            text: messageText,
-            timestamp: formatTime(data.message?.createdAt || new Date().toISOString()),
-          },
-        ]);
+        // setMessages((prev) => [
+        //   ...prev,
+        //   {
+        //     id: data.message?._id || Date.now().toString(),
+        //     sender: apiSender,
+        //     text: messageText,
+        //     timestamp: formatTime(data.message?.createdAt || new Date().toISOString()),
+        //   },
+        // ]);
+        const socket = getSocket();
+      socket.emit("chat-message", {
+        bookingId,
+        text: messageText,
+        sender: apiSender,
+      });
         setInputMessage("");
       }
     } catch (error) {
@@ -124,7 +131,36 @@ export function RideChat({ bookingId, currentRole }: RideChatProps) {
       setSending(false);
     }
   };
-
+  useEffect(() => {
+    const socket = getSocket();
+  
+    socket.emit("join-ride", bookingId);
+  
+    return () => {
+      socket.off("chat-message");
+    };
+  }, [bookingId]);
+  useEffect(() => {
+    const socket = getSocket();
+  
+    socket.on("chat-message", (data) => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          sender: data.sender,
+          text: data.text,
+          timestamp: formatTime(
+            data.createdAt || new Date().toISOString()
+          ),
+        },
+      ]);
+    });
+  
+    return () => {
+      socket.off("chat-message");
+    };
+  }, []);
   return (
     <div className="flex h-[500px] w-full flex-col rounded-2xl border border-[#bbf7d0] bg-white p-4 shadow-sm">
       {/* Header Panel */}

@@ -30,6 +30,8 @@ export async function GET(
       .populate("user", "name email mobileNumber")
       .populate("driver", "name email mobileNumber currentLocation")
       .populate("vehicle");
+      console.log(booking);
+      
 
     if (!booking) {
       return NextResponse.json(
@@ -46,12 +48,12 @@ export async function GET(
       booking,
     });
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
 
     return NextResponse.json(
       {
         success: false,
-        message: "Internal Server Error",
+        message: error.message,
       },
       { status: 500 }
     );

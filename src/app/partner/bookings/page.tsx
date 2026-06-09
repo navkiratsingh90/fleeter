@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getSocket } from "@/lib/socket";
+import { useRouter } from "next/navigation";
 
 type BookingStatus =
   | "requested"
@@ -81,6 +82,7 @@ function BookingCard({
   onAccept: (id: string) => void;
   onReject: (id: string) => void;
 }) {
+  const router = useRouter()
   const status = booking.bookingStatus ?? "requested";
   const payment = booking.paymentStatus ?? "pending";
 
@@ -192,7 +194,7 @@ function BookingCard({
               )}
 
               <Button
-                onClick={() => onDetails(booking)}
+                onClick={() => router.push(`/partner/active-ride`)}
                 className="h-11 rounded-xl px-5 bg-[#22c55e] text-white hover:bg-[#16a34a]"
               >
                 Details

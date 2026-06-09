@@ -10,47 +10,23 @@ import {
   User,
 } from "lucide-react";
 import React from "react";
-// import { IBooking, BookingStatus, ChatRole } from "@/types/booking";
 import { RideChat } from "./RideChat";
-import { BookingStatus, PaymentStatus } from "@/models/booking-model";
-import { IUser } from "@/models/user-model";
 
+type BookingStatus =
+  | "idle"
+  | "requested"
+  | "awaiting_payment"
+  | "confirmed"
+  | "started"
+  | "completed"
+  | "cancelled"
+  | "rejected"
+  | "expired";
 
-interface IBooking {
-	_id: string;
-	user?: IUser;
-	driver?: string | IUser;
-	vehicle?: {
-	  _id?: string;
-	  owner?: string;
-	  type?: string;
-	  vehicleModel?: string;
-	  number?: string;
-	};
-	bookingStatus: BookingStatus;
-	paymentStatus: PaymentStatus;
-	fare: number;
-	driverMobileNumber?: string;
-	userMobileNumber?: string;
-	pickUpAddress?: string;
-	dropAddress?: string;
-	pickupLocation?: {
-	  type: "Point";
-	  coordinates: [number, number];
-	};
-	dropLocation?: {
-	  type: "Point";
-	  coordinates: [number, number];
-	};
-	createdAt?: string;
-	updatedAt?: string;
-  }
-  
-  type ChatRole = "driver" | "user";
-
+type ChatRole = "driver" | "user";
 
 interface PanelContentProps {
-  booking: IBooking;
+  booking: any;
   bookingId: string;
   currentRole: ChatRole;
   status: BookingStatus;
@@ -58,8 +34,6 @@ interface PanelContentProps {
   distanceToDrop: number;
   etaToPickUp: number;
   etaToDrop: number;
-  onArrivePickup: () => void;
-  onStartRide: () => void;
   actionLoading: boolean;
 }
 
@@ -72,8 +46,6 @@ export function PanelContent({
   distanceToDrop,
   etaToPickUp,
   etaToDrop,
-  onArrivePickup,
-  onStartRide,
   actionLoading,
 }: PanelContentProps) {
   const isActive = ["confirmed", "started"].includes(status);
@@ -108,7 +80,7 @@ export function PanelContent({
         </div>
       </div>
 
-      {/* CUSTOMER CARD */}
+      {/* CUSTOMER/DRIVER CARD */}
       <div className="flex items-center justify-between rounded-xl border border-[#bbf7d0] bg-[#f8fffb] p-3">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#22c55e]">
@@ -124,7 +96,7 @@ export function PanelContent({
           </div>
         </div>
         <div className="ml-2 flex-shrink-0 rounded-full border border-gray-200 bg-white px-2.5 py-1">
-          <p className="text-[9px] font-bold text-gray-600">
+          <p className="text-[9px] font-bold text-gray-600 capitalize">
             {booking.paymentStatus === "cash" ? "Cash" : booking.paymentStatus || "Pending"}
           </p>
         </div>
@@ -155,18 +127,18 @@ export function PanelContent({
       {/* PICKUP LOCATION */}
       <div className="rounded-xl border border-[#bbf7d0] bg-[#f8fffb] p-3">
         <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-gray-500">Pickup</p>
-        <p className="text-sm text-gray-800">{formatAddress(booking.pickUpAddress)}</p>
+        <p className="text-sm text-gray-800 font-medium">{formatAddress(booking.pickUpAddress)}</p>
       </div>
 
       {/* DROP LOCATION */}
       <div className="rounded-xl border border-[#bbf7d0] bg-[#f8fffb] p-3">
         <p className="mb-1 text-[9px] font-bold uppercase tracking-widest text-gray-500">Drop</p>
-        <p className="text-sm text-gray-800">{formatAddress(booking.dropAddress)}</p>
+        <p className="text-sm text-gray-800 font-medium">{formatAddress(booking.dropAddress)}</p>
       </div>
 
-      {/* DISTANCE (only when active) */}
+      {/* DISTANCE INDICATOR (Fixed background visibility issue) */}
       {isActive && (
-        <div className="rounded-xl border border-blue-100 bg-[#22c55e] p-3">
+        <div className="rounded-xl border border-blue-100 bg-blue-50 p-3">
           <div className="mb-1 flex items-center gap-2">
             <Navigation size={12} className="text-blue-600" />
             <p className="text-[9px] font-bold uppercase tracking-widest text-blue-600">Distance</p>
@@ -180,9 +152,8 @@ export function PanelContent({
 
       {/* ACTION BUTTONS */}
       <div className="space-y-2 pt-2">
-        {isConfirmed && (
+        {isConfirmed && currentRole === "driver" && (
           <button
-            onClick={onArrivePickup}
             disabled={actionLoading}
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#22c55e] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-all active:scale-95 hover:bg-[#16a34a] disabled:opacity-50"
           >
@@ -199,9 +170,8 @@ export function PanelContent({
             )}
           </button>
         )}
-        {isStarted && (
+        {isStarted && currentRole === "driver" && (
           <button
-            onClick={onStartRide}
             disabled={actionLoading}
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#22c55e] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-all active:scale-95 hover:bg-[#16a34a] disabled:opacity-50"
           >

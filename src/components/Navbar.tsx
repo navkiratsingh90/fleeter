@@ -28,7 +28,7 @@ const Navbar = () => {
     if (role === "partner") {
       return [
         { label: "Dashboard", href: "/partner/dashboard" },
-        { label: "Bookings", href: "/partner/booking" },
+        { label: "Bookings", href: "/partner/bookings" },
         { label: "Pending Bookings", href: "/partner/pending-bookings" },
         { label: "Completed Bookings", href: "/partner/bookings/completed" },
       ];

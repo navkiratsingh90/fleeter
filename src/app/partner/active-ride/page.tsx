@@ -11,6 +11,7 @@ import React, { useEffect, useState } from "react";
 import { PanelContent } from "@/components/PanelContent";
 import { IUser } from "@/models/user-model";
 import { PaymentStatus } from "@/models/booking-model";
+import { getSocket } from "@/lib/socket";
 
 export type BookingStatus =
   | "idle"
@@ -198,11 +199,12 @@ const Page = () => {
       setError("Geolocation is not supported by your browser");
       return;
     }
-
+    const socket = getSocket()
     const watchId = navigator.geolocation.watchPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
         setDriverPos([latitude, longitude]);
+        socket.emit("update-driver-location" , ({bookingId : booking._id, latitude : latitude, longitude : longitude, status : status} ))
       },
       (err) => {
         console.error("Geolocation error:", err);
@@ -214,13 +216,18 @@ const Page = () => {
       navigator.geolocation.clearWatch(watchId);
     };
   }, [booking]);
-
-  useEffect(() => {
-    if (!driverPos || !pickUpPos) return;
-
-   
-  }, [driverPos, pickUpPos, dropPos]);
-
+  useEffect(() => { 
+    if (!booking?._id) return
+    const socket = getSocket()
+    socket.emit("join-ride" , booking?._id)
+    socket.on("driver-location" ,({latitude,longitude}) => {
+      setDriverPos([latitude,longitude])
+    })
+    return () => {
+      socket.off("join-ride");
+      socket.off("driver-location")
+    }
+  },[booking?._id])
   useEffect(() => {
     fetchActiveBooking();
   }, []);
@@ -348,8 +355,8 @@ const Page = () => {
           distanceToDrop={distanceToDrop}
           etaToPickUp={etaToPickUp}
           etaToDrop={etaToDrop}
-          onArrivePickup={handleArriveAtPickup}
-          onStartRide={handleStartRide}
+          // onArrivePickup={handleArriveAtPickup}
+          // onStartRide={handleStartRide}
           actionLoading={actionLoading}
         />
 

@@ -87,11 +87,11 @@ const LiveRideMap = ({
 
 
   useEffect(() => {
-    if (!driverLocation) return;
+    if (!driverLocation || !pickUpLocation || !dropLocation) return;
   
-    const [pLat, pLon] = pickUpLocation as [number, number];
-    const [dLat, dLon] = dropLocation as [number, number];
-    const [drLat, drLon] = driverLocation as [number, number];
+    const [pLat, pLon] = pickUpLocation;
+    const [dLat, dLon] = dropLocation;
+    const [drLat, drLon] = driverLocation ;
   
     const getRoute = async (startLat: number, startLon: number, endLat: number, endLon: number) => {
       const res = await axios.get(
@@ -104,7 +104,7 @@ const LiveRideMap = ({
       try {
         if (mapStatus === "arriving") {
           const pickUpRoute = await getRoute(drLat, drLon, pLat, pLon);
-          const dropRoute = await getRoute(dLat, dLon, drLat, drLon);
+          const dropRoute = await getRoute(pLat, pLon, dLat, dLon);
 
       setRouteToPickUp(pickUpRoute.geometry.coordinates.map(
         ([lon, lat]: [number, number]) => [lat, lon]
@@ -208,12 +208,12 @@ const LiveRideMap = ({
           />
         )}
 
-        { dropLocation && (
+        {/* { dropLocation && (
           <Marker
             position={dropLocation}
             icon={dropIcon}
           />
-        )}
+        )} */}
       </MapContainer>
     </div>
   );
