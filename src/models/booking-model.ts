@@ -48,7 +48,8 @@ export interface IBooking extends Document {
 
   pickupOtp: string;
   dropOtp: string;
-
+  distanceCovered? : number,
+  duration? : number,
   pickupOtpExpiresAt?: Date;
   dropOtpExpiresAt?: Date;
   createdAt : Date,
@@ -171,7 +172,14 @@ const bookingSchema = new mongoose.Schema<IBooking>(
       type: String,
       default: "",
     },
-
+    distanceCovered : {
+      type : Number,
+      default : 0
+    },
+    duration : {
+      type : Number,
+      default : 0
+    },
     pickupOtpExpiresAt: Date,
     dropOtpExpiresAt: Date,
   },

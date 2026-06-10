@@ -61,7 +61,8 @@ export default function CheckoutPage() {
   const pickUpLat = params.get("pickUpLat") || "";
   const pickUpLon = params.get("pickUpLon") || "";
   const dropLat = params.get("dropLat") || "";
-  const dropLon = params.get("dropLon") || "";
+  const dropLon = params.get("dropLon") || ""; 
+  const distance = params.get("distance")
 
   const { Icon } = VEHICLE_META[vehicle] || VEHICLE_META.car;
 
@@ -89,6 +90,7 @@ export default function CheckoutPage() {
         vehicleId,
         pickUpAddress: pickup,
         dropAddress: drop,
+        distance : Number(distance),
         pickUpLocation: {
           type: "Point",
           coordinates: [Number(pickUpLon), Number(pickUpLat)],
@@ -176,6 +178,7 @@ export default function CheckoutPage() {
     const socket = getSocket()
     socket.on("accept-booking", (data) => {
       setStatus(data)
+      fetchCurrentBooking()
     })
     return () => {
      socket.off("accept-booking")

@@ -272,6 +272,7 @@ export default function SearchPage() {
             pickUpLat: String(pickUpLat),
             pickUpLon: String(pickUpLon),
             dropLat: String(dropLat),
+            distance : String(km),
             dropLon: String(dropLon),
           });
           

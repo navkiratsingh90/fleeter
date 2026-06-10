@@ -38,7 +38,7 @@ export async function GET() {
     const activeRide = await Booking.findOne({
       driver: partner._id,
       bookingStatus: {
-        $in: ["confirmed", "started"],
+        $in: ["confirmed", "started","completed"],
       },
     })
       .populate("user", "name email mobileNumber")

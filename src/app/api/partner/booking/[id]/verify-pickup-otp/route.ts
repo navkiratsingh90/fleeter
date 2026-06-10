@@ -3,15 +3,13 @@ import connectDB from "@/lib/db";
 import Booking from "@/models/booking-model";
 
 export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  try {
-    await connectDB();
-
-    const { otp } = await req.json();
-
-    const booking = await Booking.findById(params.id);
+  try{
+  const { id } = await params;
+    const {otp} = await req.json()
+  const booking = await Booking.findById(id).populate("user", "name email");
 
     if (!booking) {
       return NextResponse.json(

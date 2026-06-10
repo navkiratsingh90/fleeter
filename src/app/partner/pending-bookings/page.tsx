@@ -4,6 +4,7 @@ import { getSocket } from "@/lib/socket";
 import { IBooking } from "@/models/booking-model";
 import axios from "axios";
 import { MapPin, Navigation, Clock, IndianRupee } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type RideRequest = {
@@ -17,6 +18,7 @@ type RideRequest = {
 export default function DriverRequestsPage() {
 	const [bookings, setBookings] = useState<IBooking[]>([]);
 	const [loading, setLoading] = useState(true);
+  const router = useRouter()
 
 useEffect(() => {
   const fetchPendingBookings = async () => {
@@ -72,7 +74,7 @@ const handleReject = async (bookingId: string) => {
 	  
 	  if (data.success) {
 		// alert("Ride Accepted");
-  
+    router.push(`/partner/bookings`)
 		setBookings((prev: any) =>
 		  prev.filter(
 			(booking: any) =>

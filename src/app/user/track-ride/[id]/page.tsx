@@ -8,6 +8,8 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { PanelContent } from "@/components/PanelContent";
 import { getSocket } from "@/lib/socket";
+import RideCompleted from "@/components/RideCompleted";
+import { PaymentStatus } from "@/models/booking-model";
 
 type BookingStatus =
   | "idle"
@@ -38,6 +40,7 @@ interface IBooking {
   };
   bookingStatus: BookingStatus;
   fare: number;
+  paymentStatus : PaymentStatus,
   pickUpAddress?: string;
   dropAddress?: string;
   pickupLocation?: {
@@ -165,7 +168,15 @@ export default function TrackRidePage() {
       </div>
     );
   }
-
+  if (status === "completed") {
+    return (
+      <RideCompleted
+        fare={booking?.fare || 0}
+        customerName={booking?.user?.name || "Customer"}
+        paymentStatus={booking?.paymentStatus}
+      />
+    );
+  }
   const statusInfo = STATUS_LABEL[status] || STATUS_LABEL.idle;
 
   return (

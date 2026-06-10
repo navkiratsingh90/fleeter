@@ -19,7 +19,7 @@ interface Props {
   dropLocation: [number, number] | null;
   mapStatus: string;
   onStats : (data : {
-    distanceToPickUp : number, etaToPickUp : number, distanceToDrop: number, etaToDrop:number
+    distanceToPickUp : number, etaToPickUp : number, distanceToDrop: number, etaToDrop:number, totalDistance : number
   }) => void
 }
 
@@ -116,8 +116,12 @@ const LiveRideMap = ({
         distanceToPickUp: (pickUpRoute?.distance ?? 0) / 1000,
         etaToPickUp: (pickUpRoute?.duration ?? 0) / 60,
         distanceToDrop: (dropRoute?.distance ?? 0) / 1000,
-        etaToDrop: (dropRoute?.duration ?? 0) / 60
-    })
+        etaToDrop: (dropRoute?.duration ?? 0) / 60,
+        totalDistance:
+          ((pickUpRoute?.distance ?? 0) +
+            (dropRoute?.distance ?? 0)) /
+          1000,
+      });
 
         }
         else{
@@ -129,7 +133,8 @@ const LiveRideMap = ({
             distanceToPickUp: 0,
             etaToPickUp: 0,
             distanceToDrop: (dropRoute?.distance ?? 0) / 1000,
-            etaToDrop: (dropRoute?.duration ?? 0) / 60
+            etaToDrop: (dropRoute?.duration ?? 0) / 60,
+            totalDistance : 0
         })
         }
       } catch (error) {
@@ -194,7 +199,7 @@ const LiveRideMap = ({
           />
         )}
 
-        {pickUpLocation && (
+        {pickUpLocation && mapStatus != "ongoing" && (
           <Marker
             position={pickUpLocation}
             icon={pickupIcon}

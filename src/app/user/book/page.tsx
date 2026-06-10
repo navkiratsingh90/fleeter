@@ -38,9 +38,9 @@ const GEO_API_KEY = process.env.NEXT_PUBLIC_GEOAPIFY_KEY;
 const getCurrentAddress = async (q: string) => {
   try {
     const { data } = await axios.get(
-      `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(q.trim())}&apiKey=${process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY}`,
-
+      `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=8`
     );
+
     return data;
   } catch (error) {
     console.error(error);

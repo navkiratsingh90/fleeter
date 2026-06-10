@@ -24,6 +24,7 @@ export interface IUser extends Document {
   isOnline : boolean,
   createdAt : Date,
   updatedAt : Date
+  rating : number
 }
 
 const userSchema = new mongoose.Schema<IUser>(
@@ -102,6 +103,10 @@ const userSchema = new mongoose.Schema<IUser>(
       type :Boolean,
       default : false,
       index : true
+    },
+    rating : {
+      type : Number,
+      enum : [1,2,3,4,5]
     }
   },
   { timestamps: true }

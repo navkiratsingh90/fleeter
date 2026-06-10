@@ -30,10 +30,12 @@ export async function POST(req: NextRequest) {
       pickUpLocation,
       dropLocation,
       fare,
+      distance,
       mobileNumber,
     } = await req.json();
-
-    if (
+    console.log(distance);
+    
+    if ( 
       !driverId ||
       !vehicleId ||
       !pickUpAddress ||
@@ -41,6 +43,7 @@ export async function POST(req: NextRequest) {
       !pickUpLocation?.coordinates?.length ||
       !dropLocation?.coordinates?.length ||
       !fare ||
+      !distance ||
       !mobileNumber
     ) {
       return NextResponse.json(
@@ -128,10 +131,9 @@ export async function POST(req: NextRequest) {
       user: user._id,
       driver: driver._id,
       vehicle: vehicle._id,
-
       pickUpAddress,
       dropAddress,
-
+      distance,
       pickupLocation: {
         type: "Point",
         coordinates: pickUpLocation.coordinates,
@@ -148,7 +150,7 @@ export async function POST(req: NextRequest) {
         driver.mobileNumber || "",
 
       userMobileNumber: mobileNumber,
-
+      distanceCovered : distance,
       bookingStatus: "requested",
       paymentStatus: "pending",
     });

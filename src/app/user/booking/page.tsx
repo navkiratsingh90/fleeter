@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
 
 type BookingStatus =
   | "requested"
@@ -57,6 +58,7 @@ function BookingCard({
   onDetails: (b: BookingItem) => void;
   onCancel: (id: string) => void;
 }) {
+  const router = useRouter()
   const status = booking.bookingStatus ?? "requested";
   const payment = booking.paymentStatus ?? "pending";
 
@@ -160,7 +162,7 @@ function BookingCard({
               )}
 
               <Button
-                onClick={() => onDetails(booking)}
+                onClick={() => router.push(`/user/track-ride/${booking._id}`)}
                 className="h-11 rounded-xl bg-[#22c55e] px-5 text-white hover:bg-[#16a34a]"
               >
                 Details

@@ -12,6 +12,7 @@ import { PanelContent } from "@/components/PanelContent";
 import { IUser } from "@/models/user-model";
 import { PaymentStatus } from "@/models/booking-model";
 import { getSocket } from "@/lib/socket";
+import RideCompleted from "@/components/RideCompleted";
 
 export type BookingStatus =
   | "idle"
@@ -146,6 +147,7 @@ const Page = () => {
   const [etaToPickUp, setEtaToPickUp] = useState(0);
   const [etaToDrop, setEtaToDrop] = useState(0);
   const [status, setStatus] = useState<BookingStatus>("idle");
+  const [totalDistance,setTotalDistance] = useState<number>(0)
   const [actionLoading, setActionLoading] = useState(false);
 
   const fetchActiveBooking = async () => {
@@ -268,7 +270,6 @@ const Page = () => {
       </div>
     );
   }
-
   if (error || !booking) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-white via-[#f8fffb] to-[#f0fdf4] p-4">
@@ -288,7 +289,15 @@ const Page = () => {
       </div>
     );
   }
-
+  if (status === "completed") {
+    return (
+      <RideCompleted
+        fare={booking?.fare || 0}
+        customerName={booking?.user?.name || "Customer"}
+        paymentStatus={booking?.paymentStatus}
+      />
+    );
+  }
   const statusKey = booking.bookingStatus || "idle";
   const statusInfo = STATUS_LABEL[statusKey as BookingStatus] || STATUS_LABEL.idle;
   const displayEta = status === "confirmed" ? etaToPickUp : etaToDrop;
@@ -301,11 +310,18 @@ const Page = () => {
           pickUpLocation={pickUpPos}
           dropLocation={dropPos}
           mapStatus={MAP_STATUS[booking.bookingStatus!]}
-          onStats={({ distanceToPickUp, etaToPickUp, distanceToDrop, etaToDrop }) => {
+          onStats={({
+            distanceToPickUp,
+            etaToPickUp,
+            distanceToDrop,
+            etaToDrop,
+            totalDistance,
+          }) => {
             setDistanceToPickUp(distanceToPickUp);
             setEtaToPickUp(etaToPickUp);
             setDistanceToDrop(distanceToDrop);
             setEtaToDrop(etaToDrop);
+            setTotalDistance(totalDistance);
           }}
         />
 

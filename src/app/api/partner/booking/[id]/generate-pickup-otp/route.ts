@@ -4,14 +4,13 @@ import Booking from "@/models/booking-model";
 import { sendPickupOtp } from "@/lib/send-mail";
 
 export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  try {
-    await connectDB();
+  try{
+  const { id } = await params;
 
-    const booking = await Booking.findById(params.id)
-      .populate("user", "name email");
+  const booking = await Booking.findById(id).populate("user", "name email");
 
     if (!booking) {
       return NextResponse.json(

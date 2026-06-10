@@ -36,14 +36,14 @@ export async function GET() {
 
     const booking = await Booking.findOne({
       user: user._id,
-    //   bookingStatus: {
-    //     $in: [
-    //       "requested",
-    //       "confirmed",
-    //       "started",
-    //       "awaiting_payment",
-    //     ],
-    //   },
+      bookingStatus: {
+        $in: [
+          "requested",
+          "confirmed",
+          "started",
+          "awaiting_payment",
+        ],
+      },
     })
       .populate("driver", "name mobileNumber")
       .populate("vehicle");
