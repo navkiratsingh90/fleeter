@@ -160,10 +160,10 @@ const LiveRideMap = ({
         zoom={13}
         style={{ width: "100%", height: "100%" }}
       >
-        <TileLayer
-          attribution="&copy; CARTO contributors"
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-        />
+         <TileLayer
+  attribution='&copy; OpenStreetMap contributors'
+  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+/>
 
         {/* {route.length > 0 && (
           <FitBounds points={route} />

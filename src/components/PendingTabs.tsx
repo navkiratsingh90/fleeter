@@ -1,4 +1,3 @@
-// components/admin/PendingTabs.tsx
 "use client";
 
 import { useState } from "react";
@@ -6,29 +5,82 @@ import { cn } from "@/lib/utils";
 import { PartnerReviewList } from "./PartnerReviewList";
 import { VideoKYCList } from "./VideoKycList";
 import { VehicleReviewList } from "./VehicleReviewList";
-import { PendingPartnerKyc, PendingPartnerType } from "./AdminDashboard";
+import {
+  PendingPartnerKyc,
+  PendingPartnerType,
+} from "./AdminDashboard";
 import { IVehicle } from "@/models/vehicle-model";
 
-type TabType = "partnerReviews" | "videoKyc" | "vehicleReviews";
+type TabType =
+  | "partnerReviews"
+  | "videoKyc"
+  | "vehicleReviews";
 
 interface TabItem {
   id: TabType;
   label: string;
-  // partner : PendingPartnerType[],
 }
 
 const tabs: TabItem[] = [
-  { id: "partnerReviews", label: "Pending Partner Reviews" },
-  { id: "videoKyc", label: "Pending Video KYC" },
-  { id: "vehicleReviews", label: "Pending Vehicle Reviews" },
+  {
+    id: "partnerReviews",
+    label: "Pending Partner Reviews",
+  },
+  {
+    id: "videoKyc",
+    label: "Pending Video KYC",
+  },
+  {
+    id: "vehicleReviews",
+    label: "Pending Vehicle Reviews",
+  },
 ];
-interface pendingTabsProps {
-  partner : PendingPartnerType[]
-  pendingKyc : PendingPartnerKyc[]
-  pendingVehicles : IVehicle[]
+
+interface PendingTabsProps {
+  partner: PendingPartnerType[];
+  pendingKyc: PendingPartnerKyc[];
+  pendingVehicles: IVehicle[];
 }
-export function PendingTabs({partner,pendingKyc , pendingVehicles} : pendingTabsProps): React.ReactElement {
-  const [activeTab, setActiveTab] = useState<TabType>("partnerReviews");
+
+interface VehicleListItem {
+  _id: string;
+  type: string;
+  number: string;
+  vehicleModel: string;
+  status: string;
+  owner: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+}
+
+export function PendingTabs({
+  partner,
+  pendingKyc,
+  pendingVehicles,
+}: PendingTabsProps): React.ReactElement {
+  const [activeTab, setActiveTab] =
+    useState<TabType>("partnerReviews");
+
+  const vehicleList: VehicleListItem[] = pendingVehicles.map(
+    (vehicle) => {
+      const vehicleData = vehicle as any;
+
+      return {
+        _id: vehicleData._id.toString(),
+        type: vehicleData.type,
+        number: vehicleData.number,
+        vehicleModel: vehicleData.vehicleModel,
+        status: vehicleData.status,
+        owner: {
+          _id: vehicleData.owner._id.toString(),
+          name: vehicleData.owner.name,
+          email: vehicleData.owner.email,
+        },
+      };
+    }
+  );
 
   return (
     <div>
@@ -46,18 +98,31 @@ export function PendingTabs({partner,pendingKyc , pendingVehicles} : pendingTabs
             )}
           >
             {tab.label}
+
             <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-600">
-              {tab.id == "partnerReviews" ? partner.length : tab.id == "videoKyc" ? pendingKyc.length : tab.id == "vehicleReviews" ? pendingVehicles.length : 0}
+              {tab.id === "partnerReviews"
+                ? partner.length
+                : tab.id === "videoKyc"
+                ? pendingKyc.length
+                : pendingVehicles.length}
             </span>
           </button>
         ))}
       </div>
 
       {/* Tab Content */}
-      <div className="bg-white rounded-2xl  border border-gray-100 shadow-sm p-6">
-        {activeTab === "partnerReviews" && <PartnerReviewList partners={partner} />}
-        {activeTab === "videoKyc" && <VideoKYCList kycList = {pendingKyc} />}
-        {activeTab === "vehicleReviews" && <VehicleReviewList vehicleList = {pendingVehicles} />}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        {activeTab === "partnerReviews" && (
+          <PartnerReviewList partners={partner} />
+        )}
+
+        {activeTab === "videoKyc" && (
+          <VideoKYCList kycList={pendingKyc} />
+        )}
+
+        {activeTab === "vehicleReviews" && (
+          <VehicleReviewList vehicleList={vehicleList} />
+        )}
       </div>
     </div>
   );

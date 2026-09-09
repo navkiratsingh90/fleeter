@@ -3,6 +3,7 @@ import connectDb from "@/lib/db";
 import Booking from "@/models/booking-model";
 import User from "@/models/user-model";
 import Vehicle from "@/models/vehicle-model";
+import { AnyArray } from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -47,7 +48,7 @@ export async function GET(
       success: true,
       booking,
     });
-  } catch (error) {
+  } catch (error : any) {
     console.error(error.message);
 
     return NextResponse.json(

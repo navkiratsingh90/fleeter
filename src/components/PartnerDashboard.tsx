@@ -27,6 +27,7 @@ import { useAppSelector } from "@/redux/hooks";
 import { RootState } from "@/redux/store";
 import axios from "axios";
 import PricingModal, { PricingValues } from "./PricingModal";
+import { PartnerEarning } from "./PartnerEarning";
 
 interface OnboardingStep {
   id: string;
@@ -368,7 +369,7 @@ export default function PartnerOnboardingPage(): React.ReactElement {
             {config.actionButton && <div>{config.actionButton}</div>}
           </div>
         )}
-
+        <PartnerEarning/>
         <Card className="rounded-3xl border border-gray-100 shadow-xl shadow-black/5 overflow-hidden">
           <CardContent className="p-6 md:p-8">
             <div className="mb-8">

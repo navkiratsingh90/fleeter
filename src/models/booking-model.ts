@@ -146,7 +146,7 @@ const bookingSchema = new mongoose.Schema<IBooking>(
 
     paymentStatus: {
       type: String,
-      enum: ["pending", "cash", "failed", "paid"],
+      enum: ["pending", "failed", "paid"],
       default: "pending",
     },
     paymentDeadline: {
