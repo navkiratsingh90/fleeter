@@ -9,7 +9,6 @@ export async function GET() {
     await connectDb();
 
     const session = await auth();
-
     if (!session?.user?.email) {
       return NextResponse.json(
         {
@@ -48,9 +47,8 @@ export async function GET() {
       driver: partner._id,
     })
       .populate("user", "name email mobileNumber")
-      .populate("vehicle")
+      // .populate("vehicle")
       .sort({ createdAt: -1 });
-
     return NextResponse.json({
       success: true,
       count: bookings.length,

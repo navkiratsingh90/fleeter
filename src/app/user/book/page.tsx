@@ -170,7 +170,7 @@ function GreenInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="h-auto border-0 bg-transparent p-0 text-[15px] font-medium text-zinc-900 shadow-none outline-none placeholder:text-zinc-400 focus-visible:ring-0"
+        className="h-auto border-0 bg-transparent p-0 text-[15px] font-medium text-black shadow-none outline-none placeholder:text-zinc-400 focus-visible:ring-0"
       />
     </div>
   );
