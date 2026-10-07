@@ -146,104 +146,6 @@ export default function RideCompleted({
             </div>
           </div>
 
-          {/* ═══ CUSTOMER CARD ═══ */}
-          <div className="group rounded-2xl border border-[#bbf7d0] bg-gradient-to-r from-[#f0fdf4] to-[#dcfce7] p-5 shadow-md hover:shadow-lg transition-all">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#16a34a] mb-3">
-              Passenger
-            </p>
-            <div className="flex items-center gap-4">
-              <div className="relative flex-shrink-0">
-                <div className="absolute inset-0 rounded-2xl bg-[#22c55e]/20 blur-lg group-hover:blur-xl transition-all" />
-                <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#22c55e] to-[#16a34a] shadow-lg">
-                  <User size={24} className="text-white" />
-                </div>
-              </div>
-
-              <div className="flex-1">
-                <p className="text-sm font-bold text-gray-900 group-hover:text-[#16a34a] transition-colors">
-                  {customerName}
-                </p>
-                <p className="text-xs text-gray-600 mt-1 flex items-center gap-1">
-                  <Star size={12} className="fill-yellow-400 text-yellow-400" />
-                  {rating} • Excellent passenger
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* ═══ ROUTE DETAILS ═══ */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm space-y-3">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600">Route</p>
-            
-            {/* Pickup */}
-            <div className="flex gap-3 items-start">
-              <div className="mt-1">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#22c55e] shadow-sm" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[9px] font-bold uppercase tracking-widest text-[#16a34a] mb-0.5">Pickup</p>
-                <p className="text-xs text-gray-700 line-clamp-1">{pickupLocation}</p>
-              </div>
-            </div>
-
-            {/* Line */}
-            <div className="ml-[5px] h-4 border-l-2 border-dashed border-[#dcfce7]" />
-
-            {/* Drop */}
-            <div className="flex gap-3 items-start">
-              <div className="mt-1">
-                <div className="w-2.5 h-2.5 rounded-full bg-gray-800 shadow-sm" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-600 mb-0.5">Drop</p>
-                <p className="text-xs text-gray-700 line-clamp-1">{dropLocation}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* ═══ RATING SECTION ═══ */}
-          {!showRating ? (
-            <button
-              onClick={() => setShowRating(true)}
-              className="w-full rounded-2xl border-2 border-[#bbf7d0] bg-[#f0fdf4] hover:bg-[#dcfce7] px-6 py-4 text-sm font-bold text-[#16a34a] transition-all active:scale-95 flex items-center justify-center gap-2"
-            >
-              <Star size={18} className="fill-yellow-400 text-yellow-400" />
-              Rate this ride
-            </button>
-          ) : (
-            <div className="rounded-2xl border border-[#bbf7d0] bg-[#f0fdf4] p-5 space-y-4">
-              <div className="text-center">
-                <p className="text-sm font-bold text-gray-900 mb-3">How was your ride?</p>
-                <div className="flex justify-center gap-3">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      onClick={() => setSelectedRating(star)}
-                      className={`transition-all transform hover:scale-110 ${
-                        selectedRating >= star ? "scale-110" : "scale-100"
-                      }`}
-                    >
-                      <Star
-                        size={32}
-                        className={`${
-                          selectedRating >= star
-                            ? "fill-yellow-400 text-yellow-400"
-                            : "text-gray-300"
-                        }`}
-                      />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <button
-                disabled={!selectedRating}
-                className="w-full rounded-xl bg-[#22c55e] hover:bg-[#16a34a] disabled:opacity-50 text-white font-bold py-3 transition-all active:scale-95"
-              >
-                Submit Rating
-              </button>
-            </div>
-          )}
 
           {/* ═══ ACTION BUTTONS ═══ */}
           <div className="space-y-2">
@@ -253,13 +155,6 @@ export default function RideCompleted({
             >
               <Home size={18} />
               Back to Home
-            </button>
-
-            <button
-              className="w-full rounded-2xl border-2 border-gray-300 hover:bg-gray-50 text-gray-900 font-bold py-4 flex items-center justify-center gap-2 transition-all active:scale-95"
-            >
-              <Share2 size={18} />
-              Share Ride
             </button>
           </div>
 

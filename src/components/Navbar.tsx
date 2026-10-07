@@ -46,6 +46,10 @@ const Navbar = () => {
           label: "Pending Bookings",
           href: "/partner/pending-bookings",
         },
+        {
+          label : "Bookings",
+          href : "/partner/bookings"
+        }
       ];
     }
 
@@ -170,12 +174,12 @@ const Navbar = () => {
               {link.label}
 
               {/* Partner Pending Count */}
-              {link.label === "Pending Bookings" &&
+              {/* {link.label === "Pending Bookings" &&
                 role === "partner" && (
                   <span className="ml-2 rounded-full bg-[#22c55e] px-2 py-0.5 text-xs text-white min-w-[20px] text-center">
                     {pendingCount}
                   </span>
-                )}
+                )} */}
             </Link>
           ))}
         </div>
@@ -186,7 +190,7 @@ const Navbar = () => {
             <div className="flex items-center gap-3">
               <Button
                 variant="outline"
-                className="rounded-full px-5"
+                className="rounded-full text-black px-5"
               >
                 <Link href="/signin">
                   Sign In
@@ -240,7 +244,7 @@ const Navbar = () => {
                     {role === "partner" && (
                       <>
                         <Link
-                          href="/partner/dashboard"
+                          href="/"
                           className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900"
                         >
                           <LayoutDashboard size={16} />
@@ -254,11 +258,6 @@ const Navbar = () => {
                           <Clock3 size={16} />
                           Pending Bookings
 
-                          {pendingCount > 0 && (
-                            <span className="ml-auto rounded-full bg-red-500 px-2 py-0.5 text-xs text-white">
-                              {pendingCount}
-                            </span>
-                          )}
                         </Link>
                       </>
                     )}
@@ -267,7 +266,7 @@ const Navbar = () => {
                     {role === "admin" && (
                       <>
                         <Link
-                          href="/admin/dashboard"
+                          href="/"
                           className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900"
                         >
                           <LayoutDashboard size={16} />
@@ -275,7 +274,7 @@ const Navbar = () => {
                         </Link>
 
                         <Link
-                          href="/user/bookings"
+                          href="/user/book"
                           className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900"
                         >
                           <BookOpen size={16} />
@@ -287,7 +286,7 @@ const Navbar = () => {
                     {/* NORMAL USER */}
                     {role === "user" && (
                       <Link
-                        href="/user/bookings"
+                        href="/user/book"
                         className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900"
                       >
                         <BookOpen size={16} />
@@ -337,12 +336,7 @@ const Navbar = () => {
             >
               {link.label}
 
-              {link.label === "Pending Bookings" &&
-                role === "partner" && (
-                  <span className="ml-2 rounded-full bg-[#22c55e] px-2 py-0.5 text-xs text-white">
-                    {pendingCount}
-                  </span>
-                )}
+             
             </Link>
           ))}
 
@@ -352,7 +346,7 @@ const Navbar = () => {
               <div className="flex flex-col gap-3">
                 <Button
                   variant="outline"
-                  className="rounded-full w-full"
+                  className="rounded-full text-black w-full"
                 >
                   <Link href="/signin">
                     Sign In
@@ -390,7 +384,7 @@ const Navbar = () => {
                 {role === "partner" && (
                   <div className="flex flex-col gap-3 text-sm text-gray-700">
                     <Link
-                      href="/partner/dashboard"
+                      href="/"
                       onClick={() => setMobileOpen(false)}
                       className="flex items-center gap-2"
                     >
@@ -405,12 +399,6 @@ const Navbar = () => {
                     >
                       <Clock3 size={16} />
                       Pending Bookings
-
-                      {pendingCount > 0 && (
-                        <span className="ml-1 rounded-full bg-red-500 px-2 py-0.5 text-xs text-white">
-                          {pendingCount}
-                        </span>
-                      )}
                     </Link>
                   </div>
                 )}
@@ -419,7 +407,7 @@ const Navbar = () => {
                 {role === "admin" && (
                   <div className="flex flex-col gap-3 text-sm text-gray-700">
                     <Link
-                      href="/admin/dashboard"
+                      href="/"
                       onClick={() => setMobileOpen(false)}
                       className="flex items-center gap-2"
                     >

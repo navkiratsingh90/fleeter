@@ -105,7 +105,7 @@ export default function PartnerOnboardingPage(): React.ReactElement {
 
   const completedCount = Math.min(partnerOnboardingSteps, STEPS.length);
   const totalSteps = STEPS.length;
-  const progressValue = (completedCount / totalSteps) * 100;
+  const progressValue = ((completedCount + 1) / totalSteps) * 100;
   const handleRequest = async () => {
     try {
         const data = await axios.get('/api/partner/video-kyc/request')
@@ -354,21 +354,6 @@ export default function PartnerOnboardingPage(): React.ReactElement {
             Complete all steps to activate your account
           </h1>
         </div>
-
-        {config && (
-          <div
-            className={cn(
-              "mb-6 rounded-2xl border p-4 flex items-center justify-between gap-4 flex-wrap",
-              cardBg
-            )}
-          >
-            <div className="flex items-center gap-3">
-              {config.icon}
-              <p className="text-sm font-dm text-gray-700">{config.message}</p>
-            </div>
-            {config.actionButton && <div>{config.actionButton}</div>}
-          </div>
-        )}
         <PartnerEarning/>
         <Card className="rounded-3xl border border-gray-100 shadow-xl shadow-black/5 overflow-hidden">
           <CardContent className="p-6 md:p-8">
@@ -381,7 +366,7 @@ export default function PartnerOnboardingPage(): React.ReactElement {
                   variant="outline"
                   className="rounded-full bg-gray-50 text-gray-600"
                 >
-                  {completedCount} / {totalSteps} completed
+                  {completedCount + 1} / {totalSteps} completed
                 </Badge>
               </div>
               <Progress value={progressValue} className="h-2 rounded-full" />
